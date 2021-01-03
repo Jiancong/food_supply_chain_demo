@@ -16,11 +16,14 @@ private:
 	unique_ptr<Shelf> frozenShelf_;
 	unique_ptr<Shelf> overflowShelf_;
 
+	unique_ptr<CircularBuffer<String> > ids_;
+
+	void processOverflow();
+
 public:
 	
 	Shelves();
 	bool Add(unique_ptr<Order>);
 	Order* Remove();
-	void processOverflow();
 };
 #endif

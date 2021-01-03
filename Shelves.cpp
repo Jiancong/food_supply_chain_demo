@@ -5,30 +5,30 @@ Shelves::Shelves(){
 	frozenShelf_ = make_unique<Shelf>(TERMPERATURE:FROZEN, 10, 1);
 	hotShelf_ = make_unique<Shelf>(TERMPERATURE:HOT, 10, 1);
 	overflowShelf_ = make_unique<Shelf>(TERMPERATURE:OVERFLOW, 15, 2);
+	ids_ = make_unique<CircularBuffer<String> >(45);
 }
 
-bool Shelves::findAvailable(){
-	if (!coldShelf_.Full()) 
-}
 
-void Shelves::processOverflow(){
-	unique_ptr<Order> picked = overflowShelf_.Pick();
+void Shelves::processOverflow(unique_ptr<Order> order){
+
+	unique_ptr<Order> removed = overflowShelf_.Remove();
+	overflowShelf_.Add(order);
+
 	if (!coldShelf_.Full()) {
-		coldShelf_.Add(picked);
+		coldShelf_.Add(removed);
 		return ;
 	}
 
 	if (!hotShelf_.Full()) {
-		hotShelf_.Add(picked);
+		hotShelf_.Add(removed);
 		return ;
 	}
 
 	if (!frozenShelf_.Full()) {
-		frozenShelf_.Add(picked);
+		frozenShelf_.Add(removed);
 		return ;
 	}
 
-	// drop it as wasted and return.
 	return ;
 }
 
@@ -50,10 +50,40 @@ bool Shelves::Add(unique_ptr<Order> order){
 
 	// overflowShelf is full.
 	if (ret == false) {
-		processOverflow();
-		ret = overflowShelf_.Add(order);
+		processOverflow(order);
 	}
 
 	return ret;
 
+}
+
+// Remove from shelves
+unique_ptr<Order> Shelves::Remove(){
+	if (ids_.Empty()) return nullptr;
+	else {
+		// find the earliest arrived.
+		String id = ids_.Get();
+
+		unique_ptr<Order> order = frozenShelf_.Find(id);
+		if (order == nullptr) {
+			order = hotShelf_.Find(id);
+		} else {
+			return order;
+		}
+		
+		if (order == nullptr) {
+			order = coldShelf_.Find(id);
+		} else {
+			return order;
+		}
+
+		if (order == nullptr) {
+			order = overflowShelf_.Find(id);
+		} else {
+			return order;
+		}
+
+		return order;
+
+	}
 }

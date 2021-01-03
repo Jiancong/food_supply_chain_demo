@@ -60,13 +60,50 @@ void CircularBuffer::Put(T item)
 	full_ = head_ == tail_;
 }
 
-T CircularBuffer::get()
+// Find the element with specific id
+T CircularBuffer::Find(String id) {
+	lock_guard<mutex> lock(mutex_);
+	if (empty()) return nullptr;
+
+	unordered_map<String, T>::iterator it = map_.find(id);
+	if (it != map_.end()){
+		return it->second;
+	} else {
+		return nullptr;
+	}
+}
+
+T CircularBuffer::Find(String id) {
+	lock_guard<mutex> lock(mutex_);
+	if (empty()) return nullptr;
+
+	if (head_ > tailf_) {
+		
+		for (int index = tail_; index != head_; index++) {
+			if (buf_[index].GetId() == id) return buf_[index];
+		}
+	} else {
+		for (int index = tail_; index < capacity_; index++) {
+			if (buf_[index].GetId() == id) return buf_[index];
+		}
+
+		for (int index = 0; index < head_; index++) {
+			if (buf_[index].GetId() == id ) return buf_[index];
+		}
+	}
+
+	return nullptr;
+
+}
+
+// Get the last element
+T CircularBuffer::Get()
 {
 	lock_guard<mutex> lock(mutex_);
 
 	if(empty())
 	{
-		return T();
+		return nullptr;
 	}
 
 	//Read data and advance the tail (we now have a free space)
@@ -75,4 +112,8 @@ T CircularBuffer::get()
 	tail_ = (tail_ + 1) % max_size_;
 
 	return val;
+}
+
+bool CircularBuffer::Maintain(double decayModifier){
+	for 
 }

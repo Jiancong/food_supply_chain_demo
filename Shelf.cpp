@@ -4,6 +4,7 @@ void Shelf::Shelf(TEMPERATURE temp, double decayModifier, int capacity){
 	temp_ = temp;
 	decayModifier_ = decayModifier;
 	capacity_ = capacity;
+	buffers_ = make_unique(CircularBuffer<unique_ptr<Order> >)(capacity);
 }
 
 void Shelf::SetTemp(TEMPERATURE temp) {
@@ -18,34 +19,23 @@ int Shelf::GetSize(){
 	return buffers_.size();
 }
 
-bool Shelf::Add(unique_ptr<Order> order) {
-
-	lock_guard<mutex> lock(mutex_);
-	if (buffers_.size() == capacity_) return false;
-
-	buffers_.insert(std::move(order));
-
-	return true;
-
+unique_ptr<Order> Shelf::Find(String id) {
+	return buffers_.Find(id);
 }
 
-// Remove the one with smallest value in the shelf
-bool Shelf::Remove(){
-	lock_guard<mutex> lock(mutex_);
-	if (buffers_.size() == 0) return false;
+bool Shelf::Add(unique_ptr<Order> order) {
 
-	for (it_=buffers_.begin(); it_ != buffers_.end(); )
-	{
-		if (it_.GetValue() <= 0) {
-			it_ = buffers_.erase(it_);
-		} else {
-			++it;
-		}
-	}
+	if (buffers_.Full()) return false;
 
-	if (buffers_.size() == capacity_) return false;
+	buffers_.Put(std::move(order));
 
 	return true;
+}
+
+// Remove the tail element
+unique_ptr<Order> Shelf::Remove(){
+	if (buffers_.Empty()) return nullptr;
+	return buffers_.get();
 }
 
 double Shelf::GetDecayModifier(){
@@ -54,4 +44,6 @@ double Shelf::GetDecayModifier(){
 
 }
 
-
+void Shelf::Maintain(){
+	if ()
+}

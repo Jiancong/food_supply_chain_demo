@@ -15,10 +15,7 @@ private:
 	TEMPERATURE temp_;
 	double decayModifier_;
 	int capacity_;
-	//Set<unique_ptr<Order> > buffers_;
-	//Set<unique_ptr<Order> >::iterator it_;
-	//mutex	mutex_;
-	CircularBuffer<unique_ptr<Order> > buffers_;
+	unique_ptr<CircularBuffer<unique_ptr<Order> > > buffers_;
 
 public:
 	Shelf(TEMPERATURE t, int cap, double value);
@@ -28,8 +25,7 @@ public:
 
 	bool Add(unique_ptr<Order> order);
 
-	// 'false' means remove element failed 
-	bool Remove();
+	unique_ptr<Order> Remove();
 
 	bool Full();
 
@@ -39,8 +35,6 @@ public:
 
 	// 1 for single-temp, 2 for overflow shelf
 	double GetDecayModifier();
-
-	
 
 };
 #endif
