@@ -4,7 +4,7 @@ void Shelf::Shelf(TEMPERATURE temp, double decayModifier, int capacity){
 	temp_ = temp;
 	decayModifier_ = decayModifier;
 	capacity_ = capacity;
-	buffers_ = make_unique(CircularBuffer<unique_ptr<Order> >)(capacity);
+	buffers_ = make_unique(CircularBuffer<shared_ptr<Order> >)(capacity);
 }
 
 void Shelf::SetTemp(TEMPERATURE temp) {
@@ -19,21 +19,21 @@ int Shelf::GetSize(){
 	return buffers_.size();
 }
 
-unique_ptr<Order> Shelf::Find(String id) {
+shared_ptr<Order> Shelf::Find(String id) {
 	return buffers_.Find(id);
 }
 
-bool Shelf::Add(unique_ptr<Order> order) {
+bool Shelf::Add(shared_ptr<Order> order) {
 
 	if (buffers_.Full()) return false;
 
-	buffers_.Put(std::move(order));
+	buffers_.Put(order);
 
 	return true;
 }
 
 // Remove the tail element
-unique_ptr<Order> Shelf::Remove(){
+shared_ptr<Order> Shelf::Remove(){
 	if (buffers_.Empty()) return nullptr;
 	return buffers_.get();
 }
@@ -45,5 +45,5 @@ double Shelf::GetDecayModifier(){
 }
 
 void Shelf::Maintain(){
-	if ()
+	buffers_.Maintain();
 }

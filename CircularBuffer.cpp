@@ -60,19 +60,6 @@ void CircularBuffer::Put(T item)
 	full_ = head_ == tail_;
 }
 
-// Find the element with specific id
-T CircularBuffer::Find(String id) {
-	lock_guard<mutex> lock(mutex_);
-	if (empty()) return nullptr;
-
-	unordered_map<String, T>::iterator it = map_.find(id);
-	if (it != map_.end()){
-		return it->second;
-	} else {
-		return nullptr;
-	}
-}
-
 T CircularBuffer::Find(String id) {
 	lock_guard<mutex> lock(mutex_);
 	if (empty()) return nullptr;
@@ -91,9 +78,7 @@ T CircularBuffer::Find(String id) {
 			if (buf_[index].GetId() == id ) return buf_[index];
 		}
 	}
-
 	return nullptr;
-
 }
 
 // Get the last element
@@ -114,6 +99,46 @@ T CircularBuffer::Get()
 	return val;
 }
 
-bool CircularBuffer::Maintain(double decayModifier){
-	for 
+void CircularBuffer::Invalidate(int index, double decayModifier) {
+	chrono::steady_clock::time_point now = chrono::steady_clock::now();
+	int seconds = std::chrono::duration_cast<std::chrono::seconds>(now - buf_[index].;).count()
+	double value = (buf_[index].GetShelfLife() - seconds - buf_[index].GetDecayRate() * seconds * decayModifier)/buf_[index].GetShelfLife();
+
+	// this element should be wasted.
+	if (value <= 0) {
+		// swap the index element with tailed.
+		T tmp = buf_[tail_];
+		buf_[tail_] = buf_[index];
+		buf_[index] = tmp;
+		tail_ = (tail_+1) % max_size_ ;
+	}
 }
+
+bool CircularBuffer::Maintain(double decayModifier){
+	lock_guard<mutex> lock(mutex_);
+
+	if (empty())
+	{
+		return false;
+	}
+
+	if (head_ > tail_) {
+
+		for( int index = tail_; index < head_; index++) {
+			Invalidate(index, decayModifier);
+		}
+	} 
+
+	if (tail_ > head_) {
+		for( int index = tail_; index < capacity_; index++) {
+			Invalidate(index, decayModifier);
+		}
+
+		for (int index = 0; index < head_; index++) {
+			Invalidate(index, decayModifier);
+		}
+	}
+
+	return true;
+}
+

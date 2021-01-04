@@ -11,11 +11,10 @@ using namespace std;
 class Shelves {
 
 private:
-	unique_ptr<Shelf> coldShelf_;
-	unique_ptr<Shelf> hotShelf_;
-	unique_ptr<Shelf> frozenShelf_;
-	unique_ptr<Shelf> overflowShelf_;
-
+	// composite
+	unordered_map<TEMPERATURE, shared_ptr<Shelf> > shelves_;
+	shared_ptr<Shelf> overflowShelf_;
+	// use this as we need to keep orders in specific order.
 	unique_ptr<CircularBuffer<String> > ids_;
 
 	void processOverflow();
@@ -23,7 +22,7 @@ private:
 public:
 	
 	Shelves();
-	bool Add(unique_ptr<Order>);
-	Order* Remove();
+	bool Add(shared_ptr<Order>);
+	shared_ptr<Order> Remove();
 };
 #endif

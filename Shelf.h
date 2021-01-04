@@ -15,7 +15,7 @@ private:
 	TEMPERATURE temp_;
 	double decayModifier_;
 	int capacity_;
-	unique_ptr<CircularBuffer<unique_ptr<Order> > > buffers_;
+	unique_ptr<CircularBuffer<shared_ptr<Order> > > buffers_;
 
 public:
 	Shelf(TEMPERATURE t, int cap, double value);
@@ -23,9 +23,9 @@ public:
 	void SetCapacity(int cap);
 	void SetDecayModifier(double value);
 
-	bool Add(unique_ptr<Order> order);
+	bool Add(shared_ptr<Order> order);
 
-	unique_ptr<Order> Remove();
+	shared_ptr<Order> Remove();
 
 	bool Full();
 
@@ -35,6 +35,5 @@ public:
 
 	// 1 for single-temp, 2 for overflow shelf
 	double GetDecayModifier();
-
 };
 #endif

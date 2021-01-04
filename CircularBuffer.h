@@ -3,7 +3,6 @@
 
 #include <mutex>
 #include <unique_ptr>
-#include <unordered_map>
 
 using namespace std;
 
@@ -22,9 +21,10 @@ public:
 	size_t Capacity() const;
 	size_t Size() const;
 	T Find(String id);
+	bool Maintain(double decayModifier);
+	void Invalidate(int index, double decayModifier);
 
 private:
-	unordered_map<String, T> map_;
 	mutex mutex_;
 	unique_ptr<T[]> buf_;
 	size_t head_ = 0;

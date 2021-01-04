@@ -4,32 +4,33 @@
 
 class Order{
 private:
-	String id;
-	String name;
-	String temp;
-	int shelfLife;
-	double decayRate;
-	chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	double value;
+	String id_;
+	String name_;
+	String temp_;
+	double shelfLife_;
+	double decayRate_;
+	chrono::steady_clock::time_point begin_;
 
 public:
 	Order(	String id,
 			String name, 
 			String temp, 
-			int shelfLife,
+			double shelfLife,
 			double decayRate);
 
 	String GetId();
 	String GetName();
 	String GetTemp();
-	int	GetShelfLife();
+	double GetShelfLife();
 	double GetDecayRate();
-	double GetValue();
+	time_point GetBegin();
 
+	/*
 	void SetId(String id);
 	void SetName(String name);
 	void SetTemp(String temp);
-	void SetShelfLife(int shelfLife);
+	void SetShelfLife(double shelfLife);
 	void SetDecayRate(double decayRate);
+	*/
 };
 #endif
