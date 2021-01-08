@@ -1,6 +1,6 @@
 #include "Order.h"
 
-Order::Order(String id, String name, String temp, double shelfLife, double decayRate){
+Order::Order(string id, string name, string temp, double shelfLife, double decayRate){
 	id_ = id;
 	name_ = name;
 	temp_ = temp;
@@ -9,15 +9,15 @@ Order::Order(String id, String name, String temp, double shelfLife, double decay
 	begin_ = chrono::steady_clock::now();
 }
 
-String Order::GetId(){
+string Order::GetId(){
 	return id_;
 }
 
-String Order::GetName(){
+string Order::GetName(){
 	return name_;
 }
 
-String Order::GetTemp(){
+string Order::GetTemp(){
 	return temp_;
 }
 
@@ -29,7 +29,7 @@ double Order::GetDecayRate(){
 	return decayRate_;
 }
 
-time_point Order::GetBegin(){
+chrono::steady_clock::time_point Order::GetBegin(){
 	return begin_;
 }
 

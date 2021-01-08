@@ -5,24 +5,31 @@
 #include <string>
 #include "Shelf.h"
 #include "Order.h"
+#include <unordered_map>
 
 using namespace std;
 
 class Shelves {
 
 private:
-	// composite
-	unordered_map<TEMPERATURE, shared_ptr<Shelf> > shelves_;
+	// composite single shelf
+	unordered_map<string, shared_ptr<Shelf>> shelves_;
 	shared_ptr<Shelf> overflowShelf_;
-	// use this as we need to keep orders in specific order.
-	unique_ptr<CircularBuffer<String> > ids_;
 
-	void processOverflow();
+	// accelarate orderId to shelf mapping.
+	unordered_map<string, string> shelfMapper_;
+
+	void processOverflow(shared_ptr<Order> order);
 
 public:
-	
+	static string ToUpper(string str) {
+		for (auto & c: str) c = toupper(c);
+		return str;
+	}
+
 	Shelves();
-	bool Add(shared_ptr<Order>);
-	shared_ptr<Order> Remove();
+	bool AddOrder(shared_ptr<Order> order);
+	shared_ptr<Order> Remove(string orderId);
+	void Maintain();
 };
 #endif

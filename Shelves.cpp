@@ -1,28 +1,37 @@
-#include <Shelves.h>
+#include "Shelves.h"
+#include <iostream>
 
 Shelves::Shelves(){
-	shelves_.insert(TEMPERATURE:COLD, make_shared<Shelf>(TEMPERATURE:COLD, 10, 1));
-	shelves_.insert(TEMPERATURE:COLD, make_shared<Shelf>(TEMPERATURE:FROZEN, 10, 1));
-	shelves_.insert(TEMPERATURE:COLD, make_shared<Shelf>(TEMPERATURE:HOT, 10, 1));
-
-	overflowShelf_ = make_shared<Shelf>(TEMPERATURE:OVERFLOW, 15, 2);
-
-	ids_ = make_unique<CircularBuffer<String> >(45);
+	shelves_.emplace("COLD", make_shared<Shelf>("COLD", 10, 1));
+	shelves_.emplace("FROZEN", make_shared<Shelf>("FROZEN", 10, 1));
+	shelves_.emplace("HOT", make_shared<Shelf>("HOT", 10, 1));
+	overflowShelf_ = make_shared<Shelf>("OVERFLOW", 15, 2);
 }
 
-// Remove earliest order in overflow, try to put in 
-// some shelf, otherwise discard the order.
+Shelves::Maintain(){
+
+}
+
 void Shelves::processOverflow(shared_ptr<Order> order){
 
-	shared_ptr<Order> removed = overflowShelf_.Remove();
-	overflowShelf_.Add(order);
+	// remove the tail element from overflow
+	shared_ptr<Order> removed = overflowShelf_->Remove();
 
+	if (removed != nullptr) {
+		shelfMapper_.erase(removed->GetId());
+	}
+	
+	overflowShelf_->Add(order);
+	shelfMapper_.emplace(order->GetId(), ToUpper(order->GetTemp()));
+
+	// try to find available room
 	for(auto iter = shelves_.begin(); iter != shelves_.end(); ++iter)
 	{
 		shared_ptr<Shelf> shelf = iter->second;
-		if (!shelf.Full())
+		if (!shelf->Full())
 		{
-			shelf.Add(removed);
+			shelf->Add(removed);
+			shelfMapper_.emplace(removed->GetId(), shelf->GetTemp() );
 			return;
 		}
 	}
@@ -33,20 +42,28 @@ void Shelves::processOverflow(shared_ptr<Order> order){
 // Add order in specific temp shelf, if 
 // that was full, try to put it in overflow shelf.
 // If the overflow is full, go to process func.
-bool Shelves::Add(shared_ptr<Order> order){
+bool Shelves::AddOrder(shared_ptr<Order> order){
+
 	bool ret = false;
 
-	auto it = shelves_.find(order.GetTemp());
+	auto it = shelves_.find(ToUpper(order->GetTemp()));
 
 	if (it != shelves_.end()) {
-		ret = it->second.Add(order);
-	}
-
-	if (ret == false) {
-		ret = overflowShelf_.Add(order);
-	} else {
+		ret = it->second->Add(order);
+		shelfMapper_.emplace(order->GetId(), ToUpper(order->GetTemp()));
 		return true;
 	}
+
+	// single temp shelf is full
+	if (ret == false) {
+		ret = overflowShelf_->Add(order);
+
+		// enter in overflow 
+		if (ret == true) {
+			shelfMapper_.emplace(order->GetId(), ToUpper(order->GetTemp()));
+			return true;
+		}
+	} 
 
 	// overflowShelf is full.
 	if (ret == false) {
@@ -57,31 +74,37 @@ bool Shelves::Add(shared_ptr<Order> order){
 }
 
 // Remove from shelves
-shared_ptr<Order> Shelves::Remove(){
+shared_ptr<Order> Shelves::Remove(string orderId){
 
-	if (ids_.Empty()) return nullptr;
-	else {
-		// find the earliest arrived.
-		String id = ids_.Get();
+	auto it = shelfMapper_.find(orderId);
+	string temp = "";
+	if (it != shelfMapper_.end()){
+		temp = it->second;
+	}
 
-		unique_ptr<Order> order = frozenShelf_.Find(id);
-		if (order == nullptr) {
-			order = hotShelf_.Find(id);
-		} else {
-			return order;
-		}
-		
-		if (order == nullptr) {
-			order = coldShelf_.Find(id);
-		} else {
-			return order;
-		}
+	if (temp == "OVERFLOW") {
+		shared_ptr<Order> order = overflowShelf_->Find(orderId);
+		if (order != nullptr) {
 
-		if (order == nullptr) {
-			order = overflowShelf_.Find(id);
-		} else {
-			return order;
+			shared_ptr<Order> order = overflowShelf_->Remove(orderId);
+			if (order != nullptr) {
+				shelfMapper_.erase(orderId);
+				return order;
+			} else {
+				cerr << "ERROR: overflow shelf's accelerator *DOES NOT* match the shelf status. OrderId:" << orderId << endl;
+				return nullptr;
+			}
 		}
-		return order;
+	} else {
+		auto it2 = shelves_.find(temp);
+		shared_ptr<Shelf> shelf = it2->second;
+		shared_ptr<Order> order = shelf->Remove(order->GetId());
+		if (order!=nullptr) {
+			shelfMapper_.erase(orderId);
+			return order;
+		} else {
+			cerr << "ERROR: single shelf's accelerator *DOES NOT* match the shelf status. Shelf'name: " << temp << ", orderId:" << orderId << endl;;
+			return nullptr;
+		}
 	}
 }

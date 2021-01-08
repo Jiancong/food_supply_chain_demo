@@ -1,49 +1,56 @@
-#include <Shelf.h>
+#include "Shelf.h"
+#include <memory>
 
-void Shelf::Shelf(TEMPERATURE temp, double decayModifier, int capacity){
+Shelf::Shelf(string temp, double decayModifier, int capacity){
 	temp_ = temp;
 	decayModifier_ = decayModifier;
 	capacity_ = capacity;
-	buffers_ = make_unique(CircularBuffer<shared_ptr<Order> >)(capacity);
+	buffers_ = unique_ptr<CircularBuffer>(new CircularBuffer(capacity));
 }
 
-void Shelf::SetTemp(TEMPERATURE temp) {
+void Shelf::SetTemp(string temp) {
 	temp_ = temp;
 }
 
 bool Shelf::Full(){
-	return buffers_.size() == capacity_ ;
+	return buffers_->Size() == capacity_ ;
 }
 
 int Shelf::GetSize(){
-	return buffers_.size();
+	return buffers_->Size();
 }
 
-shared_ptr<Order> Shelf::Find(String id) {
-	return buffers_.Find(id);
+shared_ptr<Order> Shelf::Find(string orderId) {
+	return buffers_->Find(orderId);
 }
 
 bool Shelf::Add(shared_ptr<Order> order) {
 
-	if (buffers_.Full()) return false;
+	if (buffers_->Full()) return false;
 
-	buffers_.Put(order);
+	buffers_->Put(order);
 
 	return true;
 }
 
+// Remove the specific element
+shared_ptr<Order> Shelf::Remove(string orderId){
+	if (buffers_->Empty()) return nullptr;
+	return buffers_->Get(orderId);
+}
+
 // Remove the tail element
 shared_ptr<Order> Shelf::Remove(){
-	if (buffers_.Empty()) return nullptr;
-	return buffers_.get();
+	if (buffers_->Empty()) return nullptr;
+	return buffers_->Get();
 }
 
 double Shelf::GetDecayModifier(){
-	if (temp_ == TEMPERATURE:OVERFLOW) return 2.0;
+	if (temp_ == "OVERFLOW") return 2.0;
 	else return 1.0;
 
 }
 
 void Shelf::Maintain(){
-	buffers_.Maintain();
+	buffers_->Maintain(GetDecayModifier());
 }

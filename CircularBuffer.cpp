@@ -1,5 +1,4 @@
-#include <CircularBuffer.hpp>
-#include <lock_guard>
+#include "CircularBuffer.h"
 
 void CircularBuffer::Reset()
 {
@@ -44,7 +43,7 @@ size_t CircularBuffer::Size() const
 	return size;
 }
 
-void CircularBuffer::Put(T item)
+void CircularBuffer::Put(shared_ptr<Order> item)
 {
 	lock_guard<mutex> lock(mutex_);
 
@@ -60,33 +59,50 @@ void CircularBuffer::Put(T item)
 	full_ = head_ == tail_;
 }
 
-T CircularBuffer::Find(String id) {
-	lock_guard<mutex> lock(mutex_);
-	if (empty()) return nullptr;
+void CircularBuffer::SwapTail(int index) {
+	shared_ptr<Order> tmp = buf_[index];
+	buf_[index] = buf_[tail_];
+	buf_[tail_] = tmp;
+	tail_ = (tail_ + 1) % max_size_;
+}
 
-	if (head_ > tailf_) {
-		
+// Get the specfic element
+shared_ptr<Order> CircularBuffer::Get(string id) {
+	lock_guard<mutex> lock(mutex_);
+	if (Empty()) return nullptr;
+
+	if (head_ > tail_) {
+
 		for (int index = tail_; index != head_; index++) {
-			if (buf_[index].GetId() == id) return buf_[index];
+			if (buf_[index]->GetId() == id) {
+				SwapTail(index);
+				return buf_[index];
+			}
 		}
 	} else {
-		for (int index = tail_; index < capacity_; index++) {
-			if (buf_[index].GetId() == id) return buf_[index];
+		for (int index = tail_; index < max_size_; index++) {
+			if (buf_[index]->GetId() == id) {
+				SwapTail(index);
+				return buf_[index];
+			}
 		}
 
 		for (int index = 0; index < head_; index++) {
-			if (buf_[index].GetId() == id ) return buf_[index];
+			if (buf_[index]->GetId() == id ) {
+				SwapTail(index);
+				return buf_[index];
+			}
 		}
 	}
 	return nullptr;
 }
 
 // Get the last element
-T CircularBuffer::Get()
+shared_ptr<Order> CircularBuffer::Get()
 {
 	lock_guard<mutex> lock(mutex_);
 
-	if(empty())
+	if(Empty())
 	{
 		return nullptr;
 	}
@@ -100,14 +116,17 @@ T CircularBuffer::Get()
 }
 
 void CircularBuffer::Invalidate(int index, double decayModifier) {
+
 	chrono::steady_clock::time_point now = chrono::steady_clock::now();
-	int seconds = std::chrono::duration_cast<std::chrono::seconds>(now - buf_[index].;).count()
-	double value = (buf_[index].GetShelfLife() - seconds - buf_[index].GetDecayRate() * seconds * decayModifier)/buf_[index].GetShelfLife();
+
+	int seconds = std::chrono::duration_cast<std::chrono::seconds>(now - buf_[index]->GetBegin()).count();
+
+	double value = (buf_[index]->GetShelfLife() - seconds - buf_[index]->GetDecayRate() * seconds * decayModifier)/buf_[index]->GetShelfLife();
 
 	// this element should be wasted.
-	if (value <= 0) {
+	if (value <= 0.0) {
 		// swap the index element with tailed.
-		T tmp = buf_[tail_];
+		shared_ptr<Order> tmp = buf_[tail_];
 		buf_[tail_] = buf_[index];
 		buf_[index] = tmp;
 		tail_ = (tail_+1) % max_size_ ;
@@ -117,7 +136,7 @@ void CircularBuffer::Invalidate(int index, double decayModifier) {
 bool CircularBuffer::Maintain(double decayModifier){
 	lock_guard<mutex> lock(mutex_);
 
-	if (empty())
+	if (Empty())
 	{
 		return false;
 	}
@@ -130,7 +149,7 @@ bool CircularBuffer::Maintain(double decayModifier){
 	} 
 
 	if (tail_ > head_) {
-		for( int index = tail_; index < capacity_; index++) {
+		for( int index = tail_; index < max_size_; index++) {
 			Invalidate(index, decayModifier);
 		}
 
