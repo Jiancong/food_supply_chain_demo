@@ -26,6 +26,8 @@ public:
 	void SwapTail(int index); 
 	shared_ptr<Order> Get(string id); 
 
+	void PrintStatus();
+
 private:
 	mutex mutex_;
 	unique_ptr<shared_ptr<Order>[]> buf_;

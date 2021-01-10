@@ -2,14 +2,35 @@
 #include <iostream>
 
 Shelves::Shelves(){
-	shelves_.emplace("COLD", make_shared<Shelf>("COLD", 10, 1));
-	shelves_.emplace("FROZEN", make_shared<Shelf>("FROZEN", 10, 1));
-	shelves_.emplace("HOT", make_shared<Shelf>("HOT", 10, 1));
-	overflowShelf_ = make_shared<Shelf>("OVERFLOW", 15, 2);
+	shelves_.emplace("COLD", make_shared<Shelf>("COLD", 1, 10));
+	shelves_.emplace("FROZEN", make_shared<Shelf>("FROZEN", 1, 10));
+	shelves_.emplace("HOT", make_shared<Shelf>("HOT", 1, 10));
+	overflowShelf_ = make_shared<Shelf>("OVERFLOW", 2, 15);
 }
 
-Shelves::Maintain(){
+bool Shelves::PrintStatus(){
 
+	cout << "********** Shelves Status Start ************" << endl;
+	cout << "PrintStatus:" << endl;
+	
+	for (auto& it: shelves_) {
+		it.second->PrintStatus();
+	}
+
+	overflowShelf_->PrintStatus();
+	cout << "********** Shelves Status End ************" << endl;
+
+}
+
+void Shelves::Maintain(){
+
+	cout << "Shelves Maintain enter." << endl;
+
+	overflowShelf_->Maintain();
+
+	for (auto& it: shelves_) {
+		it.second->Maintain();
+	}
 }
 
 void Shelves::processOverflow(shared_ptr<Order> order){
@@ -44,15 +65,29 @@ void Shelves::processOverflow(shared_ptr<Order> order){
 // If the overflow is full, go to process func.
 bool Shelves::AddOrder(shared_ptr<Order> order){
 
+	PrintStatus();
+
+	cout << "Shelves AddOrder enter" << endl;
+
+	Maintain();
+
 	bool ret = false;
+
+	cout << "order temp: " << order->GetTemp() << endl;
 
 	auto it = shelves_.find(ToUpper(order->GetTemp()));
 
 	if (it != shelves_.end()) {
+		cout << "shelf size:" << it->second->GetSize() << endl;
 		ret = it->second->Add(order);
 		shelfMapper_.emplace(order->GetId(), ToUpper(order->GetTemp()));
 		return true;
+	} else {
+		cerr << "The order temp is invalid, order temp is " << order->GetTemp() << endl;
+		return false;
 	}
+
+	cout << "Shelves::AddOrder Single temp shelf is full..." << endl;
 
 	// single temp shelf is full
 	if (ret == false) {
@@ -65,6 +100,8 @@ bool Shelves::AddOrder(shared_ptr<Order> order){
 		}
 	} 
 
+	cout << "Shelves::AddOrder overflow shelf is full..." << endl;
+
 	// overflowShelf is full.
 	if (ret == false) {
 		processOverflow(order);
@@ -75,6 +112,8 @@ bool Shelves::AddOrder(shared_ptr<Order> order){
 
 // Remove from shelves
 shared_ptr<Order> Shelves::Remove(string orderId){
+
+	Maintain();
 
 	auto it = shelfMapper_.find(orderId);
 	string temp = "";
@@ -98,7 +137,8 @@ shared_ptr<Order> Shelves::Remove(string orderId){
 	} else {
 		auto it2 = shelves_.find(temp);
 		shared_ptr<Shelf> shelf = it2->second;
-		shared_ptr<Order> order = shelf->Remove(order->GetId());
+
+		shared_ptr<Order> order = shelf->Remove(orderId);
 		if (order!=nullptr) {
 			shelfMapper_.erase(orderId);
 			return order;

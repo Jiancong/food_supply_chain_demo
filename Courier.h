@@ -24,8 +24,11 @@ private:
 	long id_;
 	static int kTotal_;
 	Kitchen* kitchen_;
+	string orderId_;
 
 public:
+	void SetOrderId(string orderid);
+	string GetOrderId();
 	//Courier();
 	Courier(Kitchen* kit){
 		id_ = kTotal_ ;

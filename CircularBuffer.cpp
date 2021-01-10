@@ -1,4 +1,5 @@
 #include "CircularBuffer.h"
+#include <iostream>
 
 void CircularBuffer::Reset()
 {
@@ -47,6 +48,9 @@ void CircularBuffer::Put(shared_ptr<Order> item)
 {
 	lock_guard<mutex> lock(mutex_);
 
+	cout << "CircularBuffer::Put, head_: " << head_ << endl;
+	cout << "max_size_:" << max_size_ << endl;
+
 	buf_[head_] = item;
 
 	if(full_)
@@ -57,6 +61,7 @@ void CircularBuffer::Put(shared_ptr<Order> item)
 	head_ = (head_ + 1) % max_size_;
 
 	full_ = head_ == tail_;
+	cout << "After Put, head_:" << head_ << ", tail_:" << tail_ << ", max_size_:" << max_size_ << endl;
 }
 
 void CircularBuffer::SwapTail(int index) {
@@ -64,6 +69,36 @@ void CircularBuffer::SwapTail(int index) {
 	buf_[index] = buf_[tail_];
 	buf_[tail_] = tmp;
 	tail_ = (tail_ + 1) % max_size_;
+}
+
+void CircularBuffer::PrintStatus(){
+	if (Empty()) return ;
+
+	cout << "tail_:" << tail_ << ", head_:" << head_ << endl;
+
+	if (head_ > tail_) {
+
+
+		for (int index = tail_; index != head_; index++) {
+			cout <<  buf_[index]->GetId() << "->";
+		}
+		cout << endl;
+	} else {
+		for (int index = tail_; index < max_size_; index++) {
+			cout << buf_[index]->GetId() << "->";
+		}
+
+		for (int index = 0; index < head_; index++) {
+			cout << buf_[index]->GetId() << "->";
+		}
+
+		cout << endl;
+	}
+
+}
+
+shared_ptr<Order> CircularBuffer::Find(string id){
+	return Get(id);
 }
 
 // Get the specfic element
@@ -75,22 +110,26 @@ shared_ptr<Order> CircularBuffer::Get(string id) {
 
 		for (int index = tail_; index != head_; index++) {
 			if (buf_[index]->GetId() == id) {
+				shared_ptr<Order> ret_ptr = buf_[index];
 				SwapTail(index);
-				return buf_[index];
+				return ret_ptr;
 			}
 		}
 	} else {
 		for (int index = tail_; index < max_size_; index++) {
 			if (buf_[index]->GetId() == id) {
+
+				shared_ptr<Order> ret_ptr = buf_[index];
 				SwapTail(index);
-				return buf_[index];
+				return ret_ptr;
 			}
 		}
 
 		for (int index = 0; index < head_; index++) {
 			if (buf_[index]->GetId() == id ) {
+				shared_ptr<Order> ret_ptr = buf_[index];
 				SwapTail(index);
-				return buf_[index];
+				return ret_ptr;
 			}
 		}
 	}

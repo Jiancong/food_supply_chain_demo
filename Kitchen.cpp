@@ -1,14 +1,14 @@
 #include "Kitchen.h"
-#include "util/cJSON.h"
+#include "cJSON.h"
 #include "Courier.h"
 #include <fstream>
 #include <chrono>
 #include "pthread.h"
 #include <thread>
+#include <iostream>
 
 Kitchen::Kitchen() {
 	shelves_ = unique_ptr<Shelves>(new Shelves());
-	Init("./orders.json");
 }
 
 bool Kitchen::Init(string filepath) {
@@ -20,10 +20,13 @@ bool Kitchen::Init(string filepath) {
 		content_ += jsonstring;
 	}
 
+	//cout << "content: " << content_ << endl;
+
 	return true;
 }
 
 bool Kitchen::AddOrder(shared_ptr<Order> order){
+
 	return shelves_->AddOrder(order);
 }
 
@@ -36,6 +39,9 @@ bool Kitchen::Run(int ingestCount) {
 		return false;
     } else {
     	orderSize_ = cJSON_GetArraySize(root);
+
+		cout << "order size: " << orderSize_ << endl;
+
         if (orderSize_ > 0) {
 
 			for (int i = 0; i < orderSize_; i++){
@@ -71,20 +77,27 @@ bool Kitchen::Run(int ingestCount) {
 					decayRate = decayRateObject->valuedouble;
 				}
 
+				cout << "id:[" << id << "], name:[" << name << "], temp:[" << temp << "], shelfLife:[" << shelfLife << "], decayRate:[" << decayRate<< "]"<< endl;
+
 				shared_ptr<Order> order = make_shared<Order>(id, name, temp, shelfLife, decayRate);
 
 				std::this_thread::sleep_for(std::chrono::milliseconds( 1000 / ingestCount ));
 
 				shared_ptr<Courier> courier = make_shared<Courier>(this);
-				ProcessOrder(order, courier);
+				ProceedOrder(order, courier);
 			}
 			
-        }
+        } else {
+			cerr << "order size is invalid. quit..." << endl;
+			cJSON_Delete(root);
+			return false;
+		}
         cJSON_Delete(root);
+		return true;
     }
 }
 
-bool Kitchen::ProcessOrder(shared_ptr<Order> order, shared_ptr<Courier> courier) {
+bool Kitchen::ProceedOrder(shared_ptr<Order> order, shared_ptr<Courier> courier) {
 	// Cook immediately.
 	Cook();
 
@@ -99,7 +112,7 @@ bool Kitchen::ProcessOrder(shared_ptr<Order> order, shared_ptr<Courier> courier)
 
 	pthread_create(&tid, nullptr, &Courier::thread_helper, (void *)&tdata);
 
-	pthread_join(tid, nullptr);
+	//pthread_join(tid, nullptr);
 
 	if (tdata.result != nullptr){
 		return true;
@@ -113,6 +126,5 @@ shared_ptr<Order> Kitchen::PickUpOrder(string orderId) {
 }
 
 bool Kitchen::Cook() {
-	// do nothing.
 	return true;
 }

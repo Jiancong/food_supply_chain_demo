@@ -22,6 +22,7 @@ private:
 	void processOverflow(shared_ptr<Order> order);
 
 public:
+	bool PrintStatus();
 	static string ToUpper(string str) {
 		for (auto & c: str) c = toupper(c);
 		return str;

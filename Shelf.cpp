@@ -1,4 +1,5 @@
 #include "Shelf.h"
+#include <iostream>
 #include <memory>
 
 Shelf::Shelf(string temp, double decayModifier, int capacity){
@@ -24,11 +25,24 @@ shared_ptr<Order> Shelf::Find(string orderId) {
 	return buffers_->Find(orderId);
 }
 
+bool Shelf::PrintStatus() {
+
+	cout << "Shelf=" << GetTemp() <<", size=" << GetSize() << endl;
+	buffers_->PrintStatus();
+	return true;
+
+}
+
 bool Shelf::Add(shared_ptr<Order> order) {
 
-	if (buffers_->Full()) return false;
+	if (buffers_->Full()) {
+		cout << "the buffer is full, returned." << endl;
+		return false;
+	}
 
 	buffers_->Put(order);
+
+	cout << "After add operation, the size is " << GetSize() << endl;
 
 	return true;
 }
@@ -48,9 +62,12 @@ shared_ptr<Order> Shelf::Remove(){
 double Shelf::GetDecayModifier(){
 	if (temp_ == "OVERFLOW") return 2.0;
 	else return 1.0;
-
 }
 
 void Shelf::Maintain(){
 	buffers_->Maintain(GetDecayModifier());
+}
+
+string Shelf::GetTemp(){
+	return temp_;
 }

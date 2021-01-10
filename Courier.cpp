@@ -2,6 +2,7 @@
 #include <random>
 #include <chrono>
 #include <thread>
+#include <iostream>
 
 /*
 static void* Courier::thread_helper(void* arg){
@@ -31,7 +32,14 @@ void* Courier::PickUpOrder(void* arg){
 	uniform_int_distribution<> distr(2, 6); // define the range
 	int seconds = distr(gen); 
 
-	thread_data *tdata=(thread_data *)arg;
+	thread_data* tdata=(thread_data*)arg;
+
+	if (tdata == nullptr) {
+		cout << "received invalid pointer." << endl;
+		return nullptr;
+	} else {
+		cout << "received valid pointer." << endl;
+	}
 
 	string id=tdata->orderId;
 
@@ -43,6 +51,14 @@ void* Courier::PickUpOrder(void* arg){
 	tdata->result=order;
 
 	pthread_exit(NULL);
+}
+
+void Courier::SetOrderId(string orderid){
+	orderId_ = orderid;
+}
+
+string Courier::GetOrderId(){
+	return orderId_;
 }
 
 

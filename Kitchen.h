@@ -13,7 +13,7 @@ class Kitchen {
 public:
 	Kitchen();
 	bool Init(string filepath);
-	bool ProcessOrder(shared_ptr<Order> order, shared_ptr<Courier> courier);
+	bool ProceedOrder(shared_ptr<Order> order, shared_ptr<Courier> courier);
 	bool Run(int ingestCount);
 	shared_ptr<Order> PickUpOrder(string orderId);
 

@@ -30,6 +30,8 @@ public:
 
 	bool Full();
 
+	bool PrintStatus();
+
 	string GetTemp();
 	int	GetCapacity();
 	int GetSize();
