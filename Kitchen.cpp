@@ -105,7 +105,8 @@ bool Kitchen::Run(int ingestCount) {
 
 				std::this_thread::sleep_for(std::chrono::milliseconds( 1000 / ingestCount ));
 
-				shared_ptr<Courier> courier = make_shared<Courier>(this);
+				//shared_ptr<Courier> courier = make_shared<Courier>(this);
+				Courier *courier = new Courier(this);
 				ProceedOrder(order, courier, i);
 			}
 			
@@ -134,7 +135,7 @@ bool Kitchen::Run(int ingestCount) {
     }
 }
 
-bool Kitchen::ProceedOrder(shared_ptr<Order> order, shared_ptr<Courier> courier, int i) {
+bool Kitchen::ProceedOrder(shared_ptr<Order> order, Courier* courier, int i) {
 	// Cook immediately.
 	Cook();
 
@@ -143,7 +144,8 @@ bool Kitchen::ProceedOrder(shared_ptr<Order> order, shared_ptr<Courier> courier,
 
 	courier->SetOrderId(order->GetId());
 
-	Courier* courierCopy = courier.get();
+	//Courier* courierCopy = courier.get();
+	Courier* courierCopy = courier;
 
 	cout << "parent tid:" << pthread_self() << endl;
 

@@ -16,7 +16,7 @@ public:
 	Kitchen();
 	~Kitchen();
 	bool Init(string filepath);
-	bool ProceedOrder(shared_ptr<Order> order, shared_ptr<Courier> courier, int index);
+	bool ProceedOrder(shared_ptr<Order> order, Courier* courier, int index);
 	bool Run(int ingestCount);
 	shared_ptr<Order> PickUpOrder(string orderid);
 	Shelves* shelves_;
