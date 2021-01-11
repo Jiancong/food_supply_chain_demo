@@ -14,13 +14,12 @@ Courier::Courier(Kitchen* kit){
 	id_ = kTotal_ ;
 	kTotal_++;
 	kitchen_ = kit;
-
-	cout << "------------- Courier : " << id_ << ", kitchen address: " << kitchen_ << ", shelves address:" << kitchen_->shelves_ << endl;
+	//cout << "------------- Courier : " << id_ << ", kitchen address: " << kitchen_ << ", shelves address:" << kitchen_->shelves_ << endl;
 }
 
 Courier::~Courier(){
-	cout << "courier [" << id_ << "] is destroyed." << endl;
-	cout << "pre destroyed the address of shelves is " << kitchen_->shelves_ << endl;
+	//cout << "courier [" << id_ << "] is destroyed." << endl;
+	//cout << "pre destroyed the address of shelves is " << kitchen_->shelves_ << endl;
 	kitchen_ = nullptr;
 }
 
@@ -50,12 +49,13 @@ void* Courier::PickUpOrder(void){
 
 	kitchen_->PickUpOrder(orderId_);
 
+	cout << "Courier:[" << id_ << "], PickUp Order :[" << orderId_ << "] has been delivered and removed." << endl;
+
 	pthread_exit(NULL);
 }
 
 bool Courier::DeliverOrder(shared_ptr<Order> order) {
 
-	cout << "Courier:" << id_ << " deliver order: " << order->GetId() << endl;
 
 	return true;
 }

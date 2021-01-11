@@ -19,7 +19,7 @@ Kitchen::~Kitchen(){
 
 bool Kitchen::Init(string filepath) {
 
-	cout << "----------- shelves_ address : " << shelves_ << ", kitchen address : " << this << endl;
+	//cout << "----------- shelves_ address : " << shelves_ << ", kitchen address : " << this << endl;
 
 	string jsonstring;
 	ifstream jsonFile(filepath);
@@ -43,8 +43,6 @@ bool Kitchen::AddOrder(shared_ptr<Order> order){
 }
 
 bool Kitchen::Run(int ingestCount) {
-
-
 
 	if (ingestCount <= 0) return false;
 
@@ -147,14 +145,12 @@ bool Kitchen::ProceedOrder(shared_ptr<Order> order, Courier* courier, int i) {
 	//Courier* courierCopy = courier.get();
 	Courier* courierCopy = courier;
 
-	cout << "parent tid:" << pthread_self() << endl;
+	//cout << "parent tid:" << pthread_self() << endl;
 
 	pthread_create(&courierThreads_[i], &attr_, &Courier::thread_helper, (void *)courierCopy);
 
-	cout << "son tid:" << courierThreads_[i]<< endl;
-
-
-	cout << "Kitchen: order id: " << order->GetId() << " is processing." << endl;
+	//cout << "son tid:" << courierThreads_[i]<< endl;
+	//cout << "Kitchen: order id: " << order->GetId() << " is processing." << endl;
 }
 
 bool Kitchen::Cook() {
@@ -163,12 +159,10 @@ bool Kitchen::Cook() {
 
 shared_ptr<Order> Kitchen::PickUpOrder(string orderid){
 
-	cout << "Kitchen::PickUpOrder " << orderid << endl;
+	//cout << "Kitchen::PickUpOrder " << orderid << endl;
 
-	cout << "current tid:" << pthread_self() << endl;
+	//cout << "current tid:" << pthread_self() << endl;
 
-	cout << "----------- shelves_ address : " << shelves_ << ", kitchen address : " << this << endl;
-	
 	if (shelves_ == nullptr) {
 		cerr << "shelves_ is unexpectly destroyed. This is fatal, exit." << endl;
 		return nullptr;

@@ -27,7 +27,7 @@ shared_ptr<Order> Shelf::Find(string orderId) {
 
 bool Shelf::PrintStatus() {
 
-	cout << "["<< GetTemp() << "] shelf , size [" << GetSize() <<"], full=" << Full() << endl;
+	cout << "["<< GetTemp() << "] shelf , size [" << GetSize() <<"], isFull=" << Full() << endl;
 	buffers_->PrintStatus();
 	return true;
 
@@ -42,7 +42,7 @@ bool Shelf::Add(shared_ptr<Order> order) {
 
 	buffers_->Put(order);
 
-	cout << "After add operation, the size is " << GetSize() << endl;
+	//cout << "After add operation, the size is " << GetSize() << endl;
 
 	return true;
 }

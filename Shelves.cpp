@@ -10,21 +10,20 @@ Shelves::Shelves(){
 
 bool Shelves::PrintStatus(){
 
-	cout << "********** Shelves Status Start ************" << endl;
-	cout << "PrintStatus:" << endl;
+	cout << "********** Shelves Status Printing ************" << endl;
 	
 	for (auto& it: shelvesMap_) {
 		it.second->PrintStatus();
 	}
 
 	overflowShelf_->PrintStatus();
-	cout << "********** Shelves Status End ************" << endl;
 
 }
 
 void Shelves::Maintain(){
 
-	cout << "Shelves Maintain enter." << endl;
+	cout << endl;
+	cout << "********** Shelves is Maintaining ************" << endl;
 
 	overflowShelf_->Maintain();
 
@@ -64,21 +63,21 @@ void Shelves::ProcessOverflow(shared_ptr<Order> order){
 // If the overflow is full, go to process func.
 bool Shelves::AddOrder(shared_ptr<Order> order){
 
+	cout << endl;
+	cout << "******** Shelves AddOrder calling ****** " << endl;
 	PrintStatus();
-
-	cout << "Shelves AddOrder enter" << endl;
 
 	Maintain();
 
 	bool ret = false;
 
-	cout << "order temp: " << order->GetTemp() << endl;
+	//cout << "order temp: " << order->GetTemp() << endl;
 
 	auto it = shelvesMap_.find(ToUpper(order->GetTemp()));
 
 	if (it != shelvesMap_.end()) {
 
-		cout << "shelf size:" << it->second->GetSize() << endl;
+		//cout << "shelf size:" << it->second->GetSize() << endl;
 
 		if (!it->second->Full()) {
 			ret = it->second->Add(order);
@@ -91,7 +90,7 @@ bool Shelves::AddOrder(shared_ptr<Order> order){
 		return false;
 	}
 
-	cout << "Shelves::AddOrder Single temp shelf is full..." << endl;
+	//cout << "Shelves::AddOrder Single temp shelf is full..." << endl;
 
 	// single temp shelf is full
 	if (ret == false) {
@@ -104,7 +103,7 @@ bool Shelves::AddOrder(shared_ptr<Order> order){
 		}
 	} 
 
-	cout << "Shelves::AddOrder overflow shelf is full..." << endl;
+	//cout << "Shelves::AddOrder overflow shelf is full..." << endl;
 
 	// overflowShelf is full.
 	if (ret == false) {
@@ -117,11 +116,11 @@ bool Shelves::AddOrder(shared_ptr<Order> order){
 // Remove from shelves
 shared_ptr<Order> Shelves::Remove(string orderId){
 
-	Maintain();
-	
-	cout << "Shelves::Remove Maintain done..." << endl;
+	cout << endl;
+	cout << "*************  Shelves::Remove is calling *************" << endl;
 
-	return nullptr;
+	PrintStatus();
+
 
 	auto it = idMap_.find(orderId);
 	string temp = "";
@@ -155,4 +154,6 @@ shared_ptr<Order> Shelves::Remove(string orderId){
 			return nullptr;
 		}
 	}
+
+	Maintain();
 }

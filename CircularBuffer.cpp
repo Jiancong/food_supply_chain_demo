@@ -48,8 +48,8 @@ void CircularBuffer::Put(shared_ptr<Order> item)
 {
 	lock_guard<mutex> lock(mutex_);
 
-	cout << "CircularBuffer::Put, head_: " << head_ << endl;
-	cout << "max_size_:" << max_size_ << endl;
+	//cout << "CircularBuffer::Put, head_: " << head_ << endl;
+	//cout << "max_size_:" << max_size_ << endl;
 
 	buf_[head_] = item;
 
@@ -61,7 +61,7 @@ void CircularBuffer::Put(shared_ptr<Order> item)
 	head_ = (head_ + 1) % max_size_;
 
 	full_ = head_ == tail_;
-	cout << "After Put, head_:" << head_ << ", tail_:" << tail_ << ", max_size_:" << max_size_ << endl;
+	//cout << "After Put, head_:" << head_ << ", tail_:" << tail_ << ", max_size_:" << max_size_ << endl;
 }
 
 void CircularBuffer::SwapTail(int index) {
@@ -165,11 +165,18 @@ void CircularBuffer::Invalidate(int index, double decayModifier) {
 
 	// this element should be wasted.
 	if (value <= 0.0) {
+
+		cout << endl;
+		cout << "*********** Order maintainance **************" << endl;
+		cout << "Order : [" << buf_[index]->GetId() << "] is discarded ...." << endl;
+		cout << endl;
+
 		// swap the index element with tailed.
 		shared_ptr<Order> tmp = buf_[tail_];
 		buf_[tail_] = buf_[index];
 		buf_[index] = tmp;
 		tail_ = (tail_+1) % max_size_ ;
+
 	}
 }
 
