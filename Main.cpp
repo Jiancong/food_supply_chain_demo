@@ -6,15 +6,15 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 
-	int k = 0;
+	int k = 2;
 	if (argc != 2) {
 		cerr << "Usage:" << endl;
-		cerr << "\t./Kitchen <threads number per second>" << endl;
+		cerr << "\t./Kitchen <ingest count per second>" << endl;
 		return -1;
 	} else {
 		k = atoi(argv[1]);
 		if (k < 0 || k > 100) {
-			cerr << "please input valid threads number." << endl;
+			cerr << "please input valid ingest count." << endl;
 			return -1;
 		}
 	}

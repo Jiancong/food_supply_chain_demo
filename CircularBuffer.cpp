@@ -163,6 +163,12 @@ void CircularBuffer::Invalidate(int index, double decayModifier) {
 
 	double value = (buf_[index]->GetShelfLife() - seconds - buf_[index]->GetDecayRate() * seconds * decayModifier)/buf_[index]->GetShelfLife();
 
+	/*
+	cout << "index:" << index << ", decayModifier:" << decayModifier<< endl;
+	cout << "shelf life:" << buf_[index]->GetShelfLife() << ", seconds: " << seconds << endl;
+	cout << "lastpart: " << buf_[index]->GetDecayRate() * seconds * decayModifier << endl;
+	cout << "order's value: " << value << endl;
+	*/
 	// this element should be wasted.
 	if (value <= 0.0) {
 
@@ -176,7 +182,6 @@ void CircularBuffer::Invalidate(int index, double decayModifier) {
 		buf_[tail_] = buf_[index];
 		buf_[index] = tmp;
 		tail_ = (tail_+1) % max_size_ ;
-
 	}
 }
 
