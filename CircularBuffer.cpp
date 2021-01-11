@@ -72,27 +72,28 @@ void CircularBuffer::SwapTail(int index) {
 }
 
 void CircularBuffer::PrintStatus(){
+
 	if (Empty()) return ;
 
-	cout << "tail_:" << tail_ << ", head_:" << head_ << endl;
+	cout << "\ttail_:" << tail_ << ", head_:" << head_ << endl;
 
 	if (head_ > tail_) {
 
 
+		int cnt = 0;
 		for (int index = tail_; index != head_; index++) {
-			cout <<  buf_[index]->GetId() << "->";
+			cout << "\t" << cnt++ << "." << buf_[index]->GetId() << endl;
 		}
 		cout << endl;
 	} else {
+		int cnt = 0;
 		for (int index = tail_; index < max_size_; index++) {
-			cout << buf_[index]->GetId() << "->";
+			cout << "\t" << cnt++ << "." << buf_[index]->GetId() << endl;
 		}
 
 		for (int index = 0; index < head_; index++) {
-			cout << buf_[index]->GetId() << "->";
+			cout << "\t" << cnt++ << "." << buf_[index]->GetId() << endl;
 		}
-
-		cout << endl;
 	}
 
 }

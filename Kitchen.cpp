@@ -1,17 +1,25 @@
 #include "Kitchen.h"
-#include "cJSON.h"
+#include "util/cJSON.h"
 #include "Courier.h"
 #include <fstream>
 #include <chrono>
+#include <iostream>
 #include "pthread.h"
 #include <thread>
-#include <iostream>
 
 Kitchen::Kitchen() {
-	shelves_ = unique_ptr<Shelves>(new Shelves());
+	shelves_ = new Shelves();
+//	shelves_ = unique_ptr<Shelves>(new Shelves());
+	//shelves_ = make_shared<Shelves>();
+}
+
+Kitchen::~Kitchen(){
+	delete shelves_;
 }
 
 bool Kitchen::Init(string filepath) {
+
+	cout << "----------- shelves_ address : " << shelves_ << ", kitchen address : " << this << endl;
 
 	string jsonstring;
 	ifstream jsonFile(filepath);
@@ -21,6 +29,10 @@ bool Kitchen::Init(string filepath) {
 	}
 
 	//cout << "content: " << content_ << endl;
+	
+	// Initialize and set thread joinable
+	pthread_attr_init(&attr_);
+	pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_JOINABLE);
 
 	return true;
 }
@@ -32,6 +44,8 @@ bool Kitchen::AddOrder(shared_ptr<Order> order){
 
 bool Kitchen::Run(int ingestCount) {
 
+
+
 	if (ingestCount <= 0) return false;
 
 	cJSON* root = cJSON_Parse(content_.c_str());
@@ -41,6 +55,14 @@ bool Kitchen::Run(int ingestCount) {
     	orderSize_ = cJSON_GetArraySize(root);
 
 		cout << "order size: " << orderSize_ << endl;
+
+		// TBD flaw about ordersize assumption
+		if (orderSize_ > kCourierNumber) {
+
+			cerr << "invalid orderSize_" << endl;
+
+			return false;
+		}
 
         if (orderSize_ > 0) {
 
@@ -84,7 +106,7 @@ bool Kitchen::Run(int ingestCount) {
 				std::this_thread::sleep_for(std::chrono::milliseconds( 1000 / ingestCount ));
 
 				shared_ptr<Courier> courier = make_shared<Courier>(this);
-				ProceedOrder(order, courier);
+				ProceedOrder(order, courier, i);
 			}
 			
         } else {
@@ -93,38 +115,62 @@ bool Kitchen::Run(int ingestCount) {
 			return false;
 		}
         cJSON_Delete(root);
+
+   		// free attribute and wait for the other threads
+   		pthread_attr_destroy(&attr_);
+		void* status;
+
+		for(int i = 0; i < orderSize_; i++ ) {
+			int rc = pthread_join(courierThreads_[i], &status);
+			if (rc) {
+				cerr << "Error:unable to join," << rc << endl;
+				return false;
+			}
+			cout << "Main: completed thread id :" << i ;
+			cout << "exiting with status :" << status << endl;
+		}
+
 		return true;
     }
 }
 
-bool Kitchen::ProceedOrder(shared_ptr<Order> order, shared_ptr<Courier> courier) {
+bool Kitchen::ProceedOrder(shared_ptr<Order> order, shared_ptr<Courier> courier, int i) {
 	// Cook immediately.
 	Cook();
 
 	// Add order on shelf.
 	AddOrder(order);
 
-	// call courier to pick up
-	pthread_t tid;
-	thread_data tdata;
-	tdata.orderId = order->GetId();
-	tdata.courier = courier;
+	courier->SetOrderId(order->GetId());
 
-	pthread_create(&tid, nullptr, &Courier::thread_helper, (void *)&tdata);
+	Courier* courierCopy = courier.get();
 
-	//pthread_join(tid, nullptr);
+	cout << "parent tid:" << pthread_self() << endl;
 
-	if (tdata.result != nullptr){
-		return true;
-	} else {
-		return false;
-	}
-}
+	pthread_create(&courierThreads_[i], &attr_, &Courier::thread_helper, (void *)courierCopy);
 
-shared_ptr<Order> Kitchen::PickUpOrder(string orderId) {
-	return shelves_->Remove(orderId);
+	cout << "son tid:" << courierThreads_[i]<< endl;
+
+
+	cout << "Kitchen: order id: " << order->GetId() << " is processing." << endl;
 }
 
 bool Kitchen::Cook() {
 	return true;
+}
+
+shared_ptr<Order> Kitchen::PickUpOrder(string orderid){
+
+	cout << "Kitchen::PickUpOrder " << orderid << endl;
+
+	cout << "current tid:" << pthread_self() << endl;
+
+	cout << "----------- shelves_ address : " << shelves_ << ", kitchen address : " << this << endl;
+	
+	if (shelves_ == nullptr) {
+		cerr << "shelves_ is unexpectly destroyed. This is fatal, exit." << endl;
+		return nullptr;
+	} else {
+		return shelves_->Remove(orderid);
+	}
 }

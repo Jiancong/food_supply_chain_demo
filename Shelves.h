@@ -13,13 +13,13 @@ class Shelves {
 
 private:
 	// composite single shelf
-	unordered_map<string, shared_ptr<Shelf>> shelves_;
+	unordered_map<string, shared_ptr<Shelf>> shelvesMap_;
 	shared_ptr<Shelf> overflowShelf_;
 
 	// accelarate orderId to shelf mapping.
-	unordered_map<string, string> shelfMapper_;
+	unordered_map<string, string> idMap_;
 
-	void processOverflow(shared_ptr<Order> order);
+	void ProcessOverflow(shared_ptr<Order> order);
 
 public:
 	bool PrintStatus();

@@ -2,9 +2,9 @@
 #include <iostream>
 
 Shelves::Shelves(){
-	shelves_.emplace("COLD", make_shared<Shelf>("COLD", 1, 10));
-	shelves_.emplace("FROZEN", make_shared<Shelf>("FROZEN", 1, 10));
-	shelves_.emplace("HOT", make_shared<Shelf>("HOT", 1, 10));
+	shelvesMap_.emplace("COLD", make_shared<Shelf>("COLD", 1, 10));
+	shelvesMap_.emplace("FROZEN", make_shared<Shelf>("FROZEN", 1, 10));
+	shelvesMap_.emplace("HOT", make_shared<Shelf>("HOT", 1, 10));
 	overflowShelf_ = make_shared<Shelf>("OVERFLOW", 2, 15);
 }
 
@@ -13,7 +13,7 @@ bool Shelves::PrintStatus(){
 	cout << "********** Shelves Status Start ************" << endl;
 	cout << "PrintStatus:" << endl;
 	
-	for (auto& it: shelves_) {
+	for (auto& it: shelvesMap_) {
 		it.second->PrintStatus();
 	}
 
@@ -28,35 +28,34 @@ void Shelves::Maintain(){
 
 	overflowShelf_->Maintain();
 
-	for (auto& it: shelves_) {
+	for (auto& it: shelvesMap_) {
 		it.second->Maintain();
 	}
 }
 
-void Shelves::processOverflow(shared_ptr<Order> order){
+void Shelves::ProcessOverflow(shared_ptr<Order> order){
 
 	// remove the tail element from overflow
 	shared_ptr<Order> removed = overflowShelf_->Remove();
 
 	if (removed != nullptr) {
-		shelfMapper_.erase(removed->GetId());
+		idMap_.erase(removed->GetId());
 	}
 	
 	overflowShelf_->Add(order);
-	shelfMapper_.emplace(order->GetId(), ToUpper(order->GetTemp()));
+	idMap_.emplace(order->GetId(), ToUpper(order->GetTemp()));
 
 	// try to find available room
-	for(auto iter = shelves_.begin(); iter != shelves_.end(); ++iter)
+	for(auto iter = shelvesMap_.begin(); iter != shelvesMap_.end(); ++iter)
 	{
 		shared_ptr<Shelf> shelf = iter->second;
 		if (!shelf->Full())
 		{
 			shelf->Add(removed);
-			shelfMapper_.emplace(removed->GetId(), shelf->GetTemp() );
+			idMap_.emplace(removed->GetId(), shelf->GetTemp() );
 			return;
 		}
 	}
-
 	return ;
 }
 
@@ -75,13 +74,18 @@ bool Shelves::AddOrder(shared_ptr<Order> order){
 
 	cout << "order temp: " << order->GetTemp() << endl;
 
-	auto it = shelves_.find(ToUpper(order->GetTemp()));
+	auto it = shelvesMap_.find(ToUpper(order->GetTemp()));
 
-	if (it != shelves_.end()) {
+	if (it != shelvesMap_.end()) {
+
 		cout << "shelf size:" << it->second->GetSize() << endl;
-		ret = it->second->Add(order);
-		shelfMapper_.emplace(order->GetId(), ToUpper(order->GetTemp()));
-		return true;
+
+		if (!it->second->Full()) {
+			ret = it->second->Add(order);
+			idMap_.emplace(order->GetId(), ToUpper(order->GetTemp()));
+			return true;
+		}
+
 	} else {
 		cerr << "The order temp is invalid, order temp is " << order->GetTemp() << endl;
 		return false;
@@ -95,7 +99,7 @@ bool Shelves::AddOrder(shared_ptr<Order> order){
 
 		// enter in overflow 
 		if (ret == true) {
-			shelfMapper_.emplace(order->GetId(), ToUpper(order->GetTemp()));
+			idMap_.emplace(order->GetId(), ToUpper(order->GetTemp()));
 			return true;
 		}
 	} 
@@ -104,7 +108,7 @@ bool Shelves::AddOrder(shared_ptr<Order> order){
 
 	// overflowShelf is full.
 	if (ret == false) {
-		processOverflow(order);
+		ProcessOverflow(order);
 		ret = true;
 	}
 	return ret;
@@ -114,10 +118,14 @@ bool Shelves::AddOrder(shared_ptr<Order> order){
 shared_ptr<Order> Shelves::Remove(string orderId){
 
 	Maintain();
+	
+	cout << "Shelves::Remove Maintain done..." << endl;
 
-	auto it = shelfMapper_.find(orderId);
+	return nullptr;
+
+	auto it = idMap_.find(orderId);
 	string temp = "";
-	if (it != shelfMapper_.end()){
+	if (it != idMap_.end()){
 		temp = it->second;
 	}
 
@@ -127,7 +135,7 @@ shared_ptr<Order> Shelves::Remove(string orderId){
 
 			shared_ptr<Order> order = overflowShelf_->Remove(orderId);
 			if (order != nullptr) {
-				shelfMapper_.erase(orderId);
+				idMap_.erase(orderId);
 				return order;
 			} else {
 				cerr << "ERROR: overflow shelf's accelerator *DOES NOT* match the shelf status. OrderId:" << orderId << endl;
@@ -135,12 +143,12 @@ shared_ptr<Order> Shelves::Remove(string orderId){
 			}
 		}
 	} else {
-		auto it2 = shelves_.find(temp);
+		auto it2 = shelvesMap_.find(temp);
 		shared_ptr<Shelf> shelf = it2->second;
 
 		shared_ptr<Order> order = shelf->Remove(orderId);
 		if (order!=nullptr) {
-			shelfMapper_.erase(orderId);
+			idMap_.erase(orderId);
 			return order;
 		} else {
 			cerr << "ERROR: single shelf's accelerator *DOES NOT* match the shelf status. Shelf'name: " << temp << ", orderId:" << orderId << endl;;

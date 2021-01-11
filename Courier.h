@@ -5,6 +5,7 @@
 #include <memory>
 #include "Order.h"
 #include "Kitchen.h"
+#include <iostream>
 
 using namespace std;
 
@@ -29,16 +30,18 @@ private:
 public:
 	void SetOrderId(string orderid);
 	string GetOrderId();
-	//Courier();
-	Courier(Kitchen* kit){
-		id_ = kTotal_ ;
-		kTotal_++;
-		kitchen_ = kit;
-	}
 
-	void* PickUpOrder(void* arg);
+	//Courier();
+	Courier(Kitchen* kit);
+
+	~Courier();
+
+	bool DeliverOrder(shared_ptr<Order> order); 
+
+	void* PickUpOrder(void);
 	static void* thread_helper(void* arg){
-		return (((thread_data*)arg)->courier)->PickUpOrder(arg);
+		cout << "thread_helper is running" << endl;
+		return ((Courier*)arg)->PickUpOrder();
 	}
 };
 

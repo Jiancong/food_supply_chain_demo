@@ -2,7 +2,6 @@
 #include <random>
 #include <chrono>
 #include <thread>
-#include <iostream>
 
 /*
 static void* Courier::thread_helper(void* arg){
@@ -10,6 +9,20 @@ static void* Courier::thread_helper(void* arg){
 }*/
 
 int Courier::kTotal_ = 0;
+
+Courier::Courier(Kitchen* kit){
+	id_ = kTotal_ ;
+	kTotal_++;
+	kitchen_ = kit;
+
+	cout << "------------- Courier : " << id_ << ", kitchen address: " << kitchen_ << ", shelves address:" << kitchen_->shelves_ << endl;
+}
+
+Courier::~Courier(){
+	cout << "courier [" << id_ << "] is destroyed." << endl;
+	cout << "pre destroyed the address of shelves is " << kitchen_->shelves_ << endl;
+	kitchen_ = nullptr;
+}
 
 /*
 Courier::Courier(){
@@ -25,32 +38,26 @@ Courier::Courier(Kitchen_* kit){
 	kitchen_ = kit;
 }*/
 
-void* Courier::PickUpOrder(void* arg){
+void* Courier::PickUpOrder(void){
 
 	random_device rd; // obtain a random number from hardware
 	mt19937 gen(rd()); // seed the generator
 	uniform_int_distribution<> distr(2, 6); // define the range
 	int seconds = distr(gen); 
 
-	thread_data* tdata=(thread_data*)arg;
-
-	if (tdata == nullptr) {
-		cout << "received invalid pointer." << endl;
-		return nullptr;
-	} else {
-		cout << "received valid pointer." << endl;
-	}
-
-	string id=tdata->orderId;
-
 	// sleep randamly
 	std::this_thread::sleep_for(std::chrono::seconds(seconds));
 
-	shared_ptr<Order> order = kitchen_->PickUpOrder(id);
-
-	tdata->result=order;
+	kitchen_->PickUpOrder(orderId_);
 
 	pthread_exit(NULL);
+}
+
+bool Courier::DeliverOrder(shared_ptr<Order> order) {
+
+	cout << "Courier:" << id_ << " deliver order: " << order->GetId() << endl;
+
+	return true;
 }
 
 void Courier::SetOrderId(string orderid){
