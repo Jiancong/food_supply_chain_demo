@@ -71,6 +71,18 @@ TEST_F(CircularBufferTest, OverflowTest) {
 
 }
 
+TEST_F(CircularBufferTest, DecayTest) {
+
+	shared_ptr<Order> order = make_shared<Order>("333", "fourth", "hot", 0.1, 1.0);
+	cb_->Put(order);
+	cb_->PrintStatus();
+	sleep(5);
+	cb_->Maintain(1.0);
+	cb_->PrintStatus();
+	EXPECT_EQ(1, cb_->Size());
+
+}
+
 }  // namespace
  
 int main(int argc, char **argv) {

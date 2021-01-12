@@ -176,11 +176,9 @@ void CircularBuffer::Invalidate(int index, double decayModifier) {
 		cout << "Order Id : [" << buf_[index]->GetId() << "] is discarded ...." << endl;
 		cout << endl;
 
-		// swap the index element with tailed.
-		shared_ptr<Order> tmp = buf_[tail_];
-		buf_[tail_] = buf_[index];
-		buf_[index] = tmp;
+		buf_[index] = buf_[tail_];
 		tail_ = (tail_+1) % max_size_ ;
+		full_ = false;
 	}
 }
 
@@ -193,10 +191,10 @@ bool CircularBuffer::Maintain(double decayModifier){
 	}
 
 	if (head_ > tail_) {
-
 		for( int index = tail_; index < head_; index++) {
 			Invalidate(index, decayModifier);
 		}
+		return true;
 	} 
 
 	if (tail_ > head_) {
@@ -207,8 +205,16 @@ bool CircularBuffer::Maintain(double decayModifier){
 		for (int index = 0; index < head_; index++) {
 			Invalidate(index, decayModifier);
 		}
+		return true;
+	}
+	
+	if (Full()) {
+		for (int index = 0; index < max_size_; index++) {
+			Invalidate(index, decayModifier);
+		}
+		return true;
 	}
 
-	return true;
+	return false;
 }
 

@@ -32,5 +32,5 @@ ShelfTest : $(TESTOBJS) tests/ShelfTest.o
 	$(CPP) $(CPPFLAGS) -o $@ $(INCLUDE) $^ -lgtest -lpthread
 
 clean:
-	rm -f *.o util/*.o
+	rm -f *.o util/*.o tests/*.o
 	rm -f Kitchen CircularBufferTest ShelfTest

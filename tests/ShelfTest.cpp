@@ -1,11 +1,11 @@
 #include "gtest/gtest.h"
-//#include "../CircularBuffer.h"
 #include "../Shelf.h"
 
 namespace {
 
 class ShelfTest: public ::testing::Test {
-	protected:
+
+protected:
 	
 	ShelfTest() {
 		shelf_ = new Shelf("HOT", 1.0, 3);
@@ -22,10 +22,10 @@ class ShelfTest: public ::testing::Test {
 		shelf_->Add(order);
 		order = make_shared<Order>("222", "third", "HOT", 3.5, 1.0);
 		shelf_->Add(order);
-	
 	}
 	
 	virtual void TearDown() {
+
 	}
 	
 	Shelf* shelf_;
@@ -41,7 +41,8 @@ TEST_F(ShelfTest, GetElementTest) {
 }
 
 TEST_F(ShelfTest, MaintainTest) {
-	sleep(3);
+	shelf_->PrintStatus();
+	sleep(5);
 	shelf_->Maintain();
 	shelf_->PrintStatus();
 	EXPECT_EQ(2, shelf_->GetSize());
@@ -50,10 +51,10 @@ TEST_F(ShelfTest, MaintainTest) {
 TEST_F(ShelfTest, OverflowTest) {
 	EXPECT_EQ(3, shelf_->GetSize());
 	shelf_->PrintStatus();
-	shared_ptr<Order> order = make_shared<Order>("444", "fourth", "HOT", 1.0, 1.0);
+	shared_ptr<Order> order = make_shared<Order>("333", "fourth", "HOT", 1.0, 1.0);
 	shelf_->Add(order);
 	shelf_->PrintStatus();
-	
+	EXPECT_EQ(nullptr, shelf_->Get("000"));
 }
  
 }  // namespace
