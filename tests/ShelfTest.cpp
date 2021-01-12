@@ -38,6 +38,7 @@ TEST_F(ShelfTest, GetElementTest) {
   	EXPECT_EQ("111", shelf_->Get("111")->GetId());
 	shelf_->PrintStatus();
 	EXPECT_EQ(2, shelf_->GetSize());
+
 }
 
 TEST_F(ShelfTest, MaintainTest) {
@@ -45,16 +46,18 @@ TEST_F(ShelfTest, MaintainTest) {
 	sleep(5);
 	shelf_->Maintain();
 	shelf_->PrintStatus();
-	EXPECT_EQ(2, shelf_->GetSize());
+	EXPECT_EQ(1, shelf_->GetSize());
 }
 
-TEST_F(ShelfTest, OverflowTest) {
+TEST_F(ShelfTest, FullAddTest) {
+
 	EXPECT_EQ(3, shelf_->GetSize());
 	shelf_->PrintStatus();
 	shared_ptr<Order> order = make_shared<Order>("333", "fourth", "HOT", 1.0, 1.0);
 	shelf_->Add(order);
 	shelf_->PrintStatus();
-	EXPECT_EQ(nullptr, shelf_->Get("000"));
+	EXPECT_EQ(nullptr, shelf_->Get("333"));
+
 }
  
 }  // namespace
