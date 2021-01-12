@@ -10,7 +10,7 @@ class CircularBufferTest: public ::testing::Test {
 	
 	CircularBufferTest() {
 	  	// You can do set-up work for each test here.
-		cb_ = new CircularBuffer(15);
+		cb_ = new CircularBuffer(4);
 	}
 	
 	virtual ~CircularBufferTest() {
@@ -23,9 +23,11 @@ class CircularBufferTest: public ::testing::Test {
 	virtual void SetUp() {
 		// Code here will be called immediately after the constructor (right
 		// before each test).
-		shared_ptr<Order> order = make_shared<Order>("xxx", "second", "hot", 1.0, 1.0);
+		shared_ptr<Order> order = make_shared<Order>("000", "first", "hot", 0.1, 1.0);
 		cb_->Put(order);
-		order = make_shared<Order>("abcd", "first", "hot", 20.0, 1.0);
+		order = make_shared<Order>("111", "second", "hot", 20.0, 1.0);
+		cb_->Put(order);
+		order = make_shared<Order>("222", "third", "hot", 10.0, 1.0);
 		cb_->Put(order);
 	
 	}
@@ -41,16 +43,34 @@ class CircularBufferTest: public ::testing::Test {
  
 TEST_F(CircularBufferTest, FindElementTest) {
 	
-  	EXPECT_EQ("abcd", cb_->Get("abcd")->GetId());
+  	EXPECT_EQ("111", cb_->Get("111")->GetId());
+	EXPECT_EQ(2, cb_->Size());
 }
 
-TEST_F(CircularBufferTest, RemoveAndMaintainTest) {
-	sleep(5);
-	cb_->Maintain(2.0);
+TEST_F(CircularBufferTest, MaintainTest) {
+	EXPECT_EQ(false, cb_->Full());
+	EXPECT_EQ(3, cb_->Size());
+
+	sleep(2);
+
+	cb_->Maintain(1.0);
 	cb_->PrintStatus();
-	EXPECT_EQ(1, cb_->Size());
+	EXPECT_EQ(2, cb_->Size());
 }
- 
+
+TEST_F(CircularBufferTest, OverflowTest) {
+	
+	shared_ptr<Order> order = make_shared<Order>("444", "fourth", "hot", 0.1, 1.0);
+	cb_->Put(order);
+	cb_->PrintStatus();
+	order = make_shared<Order>("555", "fifth", "hot", 0.1, 1.0);
+	cb_->Put(order);
+	cb_->PrintStatus();
+	EXPECT_EQ("555", cb_->Get("555")->GetId());
+	EXPECT_EQ(nullptr, cb_->Get("000"));
+
+}
+
 }  // namespace
  
 int main(int argc, char **argv) {

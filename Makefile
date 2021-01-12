@@ -1,7 +1,14 @@
 INCLUDE= -I. -I./util
 
-CPPFLAGS=-g -fPIC -pipe -Wno-deprecated -std=c++11
-CFLAG= -g -c -fPIC -pipe -Wno-deprecated -std=c++11  
+DEBUG=true
+
+ifdef DEBUG
+CPPFLAGS=-g -DDEBUG -fPIC -pipe -Wno-deprecated -std=c++11
+CFLAG= -g -DDEBUG -c -fPIC -pipe -Wno-deprecated -std=c++11  
+else
+CPPFLAGS=-O3 -fPIC -pipe -Wno-deprecated -std=c++11
+CFLAG= -O3 -c -fPIC -pipe -Wno-deprecated -std=c++11  
+endif
 
 CPP=g++
 CC=g++
@@ -18,7 +25,7 @@ test: CircularBufferTest ShelfTest
 Kitchen: $(OBJS) 
 	$(CPP) $(CPPFLAGS) -o $@ $(INCLUDE) $^ -lpthread
 
-CiruclarBufferTest : $(TESTOBJS) tests/CircularBufferTest.o
+CircularBufferTest : $(TESTOBJS) tests/CircularBufferTest.o
 	$(CPP) $(CPPFLAGS) -o $@ $(INCLUDE) $^ -lgtest -lpthread
 
 ShelfTest : $(TESTOBJS) tests/ShelfTest.o
@@ -26,4 +33,4 @@ ShelfTest : $(TESTOBJS) tests/ShelfTest.o
 
 clean:
 	rm -f *.o util/*.o
-	rm -f Kitchen
+	rm -f Kitchen CircularBufferTest ShelfTest

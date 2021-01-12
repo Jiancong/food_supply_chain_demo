@@ -80,52 +80,54 @@ void CircularBuffer::PrintStatus(){
 	if (head_ > tail_) {
 
 
-		int cnt = 0;
 		for (int index = tail_; index != head_; index++) {
-			cout << "\t" << cnt++ << "." << buf_[index]->GetId() << endl;
+			cout << "\t orderId: " << buf_[index]->GetId() << ", shelfLife:" << buf_[index]->GetShelfLife() << endl;
 		}
 		cout << endl;
 	} else {
-		int cnt = 0;
 		for (int index = tail_; index < max_size_; index++) {
-			cout << "\t" << cnt++ << "." << buf_[index]->GetId() << endl;
+			cout << "\t oderId: " << buf_[index]->GetId() << ", shelfLife:" << buf_[index]->GetShelfLife() << endl;
 		}
 
 		for (int index = 0; index < head_; index++) {
-			cout << "\t" << cnt++ << "." << buf_[index]->GetId() << endl;
+			cout << "\t orderId: " << buf_[index]->GetId() << ", shelfLife:" << buf_[index]->GetShelfLife() << endl;
 		}
 	}
 
 }
 
 // Get the specfic element
-shared_ptr<Order> CircularBuffer::Get(string id) {
+shared_ptr<Order> CircularBuffer::Get(string orderId) {
+
 	lock_guard<mutex> lock(mutex_);
 	if (Empty()) return nullptr;
 
 	if (head_ > tail_) {
 
 		for (int index = tail_; index != head_; index++) {
-			if (buf_[index]->GetId() == id) {
+			if (buf_[index]->GetId() == orderId) {
 				shared_ptr<Order> ret_ptr = buf_[index];
 				SwapTail(index);
+				full_ = false;
 				return ret_ptr;
 			}
 		}
 	} else {
 		for (int index = tail_; index < max_size_; index++) {
-			if (buf_[index]->GetId() == id) {
+			if (buf_[index]->GetId() == orderId) {
 
 				shared_ptr<Order> ret_ptr = buf_[index];
 				SwapTail(index);
+				full_ = false;
 				return ret_ptr;
 			}
 		}
 
 		for (int index = 0; index < head_; index++) {
-			if (buf_[index]->GetId() == id ) {
+			if (buf_[index]->GetId() == orderId ) {
 				shared_ptr<Order> ret_ptr = buf_[index];
 				SwapTail(index);
+				full_ = false;
 				return ret_ptr;
 			}
 		}
@@ -159,18 +161,19 @@ void CircularBuffer::Invalidate(int index, double decayModifier) {
 
 	double value = (buf_[index]->GetShelfLife() - seconds - buf_[index]->GetDecayRate() * seconds * decayModifier)/buf_[index]->GetShelfLife();
 
-	/*
-	cout << "index:" << index << ", decayModifier:" << decayModifier<< endl;
+#ifdef DEBUG
+	cout << "orderId:" << buf_[index]->GetId() << ", decayModifier:" << decayModifier<< endl;
 	cout << "shelf life:" << buf_[index]->GetShelfLife() << ", seconds: " << seconds << endl;
 	cout << "lastpart: " << buf_[index]->GetDecayRate() * seconds * decayModifier << endl;
 	cout << "order's value: " << value << endl;
-	*/
+#endif
+
 	// this element should be wasted.
 	if (value <= 0.0) {
 
 		cout << endl;
 		cout << "*********** Order maintainance **************" << endl;
-		cout << "Order : [" << buf_[index]->GetId() << "] is discarded ...." << endl;
+		cout << "Order Id : [" << buf_[index]->GetId() << "] is discarded ...." << endl;
 		cout << endl;
 
 		// swap the index element with tailed.

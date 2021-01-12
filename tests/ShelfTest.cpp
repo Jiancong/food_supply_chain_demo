@@ -8,7 +8,7 @@ class ShelfTest: public ::testing::Test {
 	protected:
 	
 	ShelfTest() {
-		shelf_ = new Shelf("HOT", 2.0, 15);
+		shelf_ = new Shelf("HOT", 1.0, 3);
 	}
 	
 	virtual ~ShelfTest() {
@@ -16,9 +16,11 @@ class ShelfTest: public ::testing::Test {
 	}
 	
 	virtual void SetUp() {
-		shared_ptr<Order> order = make_shared<Order>("xxx", "second", "HOT", 1.0, 1.0);
+		shared_ptr<Order> order = make_shared<Order>("000", "first", "HOT", 1.0, 1.0);
 		shelf_->Add(order);
-		order = make_shared<Order>("abcd", "first", "HOT", 20.0, 1.0);
+		order = make_shared<Order>("111", "second", "HOT", 20.0, 1.0);
+		shelf_->Add(order);
+		order = make_shared<Order>("222", "third", "HOT", 3.5, 1.0);
 		shelf_->Add(order);
 	
 	}
@@ -31,16 +33,27 @@ class ShelfTest: public ::testing::Test {
  
 TEST_F(ShelfTest, GetElementTest) {
 	
+	EXPECT_EQ(3, shelf_->GetSize());
+	shelf_->PrintStatus();
+  	EXPECT_EQ("111", shelf_->Get("111")->GetId());
+	shelf_->PrintStatus();
 	EXPECT_EQ(2, shelf_->GetSize());
-  	EXPECT_EQ("abcd", shelf_->Get("abcd")->GetId());
-	EXPECT_EQ(1, shelf_->GetSize());
 }
 
 TEST_F(ShelfTest, MaintainTest) {
 	sleep(3);
 	shelf_->Maintain();
 	shelf_->PrintStatus();
-	EXPECT_EQ(1, shelf_->GetSize());
+	EXPECT_EQ(2, shelf_->GetSize());
+}
+
+TEST_F(ShelfTest, OverflowTest) {
+	EXPECT_EQ(3, shelf_->GetSize());
+	shelf_->PrintStatus();
+	shared_ptr<Order> order = make_shared<Order>("444", "fourth", "HOT", 1.0, 1.0);
+	shelf_->Add(order);
+	shelf_->PrintStatus();
+	
 }
  
 }  // namespace

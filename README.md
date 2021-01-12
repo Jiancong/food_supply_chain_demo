@@ -8,6 +8,8 @@
 ## Run instrunctions
 1. ./Kitchen <ingest count per second, default is 2>
 
+## Run tests
+1. execute the unit test case such as ShelfTest
 
 ## Overflow shelf moving explanation
 Each order should be placed on a shelf that matches the order’s temperature. If that shelf is full, an order can
