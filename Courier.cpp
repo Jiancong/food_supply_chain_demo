@@ -55,8 +55,6 @@ void* Courier::PickUpOrder(void){
 }
 
 bool Courier::DeliverOrder(shared_ptr<Order> order) {
-
-
 	return true;
 }
 

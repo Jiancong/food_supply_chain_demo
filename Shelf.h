@@ -24,9 +24,9 @@ public:
 	bool Add(shared_ptr<Order> order);
 
 	shared_ptr<Order> Remove(string orderId);
-	shared_ptr<Order> Remove();
+	shared_ptr<Order> RemoveTail();
 
-	shared_ptr<Order> Find(string orderId);
+	shared_ptr<Order> Get(string orderId); 
 
 	bool Full();
 

@@ -98,10 +98,6 @@ void CircularBuffer::PrintStatus(){
 
 }
 
-shared_ptr<Order> CircularBuffer::Find(string id){
-	return Get(id);
-}
-
 // Get the specfic element
 shared_ptr<Order> CircularBuffer::Get(string id) {
 	lock_guard<mutex> lock(mutex_);

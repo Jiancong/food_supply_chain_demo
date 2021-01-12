@@ -21,8 +21,8 @@ int Shelf::GetSize(){
 	return buffers_->Size();
 }
 
-shared_ptr<Order> Shelf::Find(string orderId) {
-	return buffers_->Find(orderId);
+shared_ptr<Order> Shelf::Get(string orderId) {
+	return buffers_->Get(orderId);
 }
 
 bool Shelf::PrintStatus() {
@@ -54,7 +54,7 @@ shared_ptr<Order> Shelf::Remove(string orderId){
 }
 
 // Remove the tail element
-shared_ptr<Order> Shelf::Remove(){
+shared_ptr<Order> Shelf::RemoveTail(){
 	if (buffers_->Empty()) return nullptr;
 	return buffers_->Get();
 }

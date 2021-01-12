@@ -35,7 +35,7 @@ void Shelves::Maintain(){
 void Shelves::ProcessOverflow(shared_ptr<Order> order){
 
 	// remove the tail element from overflow
-	shared_ptr<Order> removed = overflowShelf_->Remove();
+	shared_ptr<Order> removed = overflowShelf_->RemoveTail();
 
 	if (removed != nullptr) {
 		idMap_.erase(removed->GetId());
@@ -129,17 +129,14 @@ shared_ptr<Order> Shelves::Remove(string orderId){
 	}
 
 	if (temp == "OVERFLOW") {
-		shared_ptr<Order> order = overflowShelf_->Find(orderId);
+		shared_ptr<Order> order = overflowShelf_->Get(orderId);
 		if (order != nullptr) {
 
-			shared_ptr<Order> order = overflowShelf_->Remove(orderId);
-			if (order != nullptr) {
-				idMap_.erase(orderId);
-				return order;
-			} else {
-				cerr << "ERROR: overflow shelf's accelerator *DOES NOT* match the shelf status. OrderId:" << orderId << endl;
-				return nullptr;
-			}
+			idMap_.erase(orderId);
+			return order;
+		} else {
+			cerr << "ERROR: overflow shelf's accelerator *DOES NOT* match the shelf status. OrderId:" << orderId << endl;
+			return nullptr;
 		}
 	} else {
 		auto it2 = shelvesMap_.find(temp);

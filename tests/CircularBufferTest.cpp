@@ -41,7 +41,7 @@ class CircularBufferTest: public ::testing::Test {
  
 TEST_F(CircularBufferTest, FindElementTest) {
 	
-  	EXPECT_EQ("abcd", cb_->Find("abcd")->GetId());
+  	EXPECT_EQ("abcd", cb_->Get("abcd")->GetId());
 }
 
 TEST_F(CircularBufferTest, RemoveAndMaintainTest) {

@@ -20,7 +20,6 @@ public:
 	bool Full() const;
 	size_t Capacity() const;
 	size_t Size() const;
-	shared_ptr<Order> Find(string id);
 	bool Maintain(double decayModifier);
 	void Invalidate(int index, double decayModifier);
 	void SwapTail(int index); 

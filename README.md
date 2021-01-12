@@ -3,6 +3,7 @@
 ## Build instructions
 1. make clean
 2. make
+3. make test
 
 ## Run instrunctions
 1. ./Kitchen <ingest count per second, default is 2>

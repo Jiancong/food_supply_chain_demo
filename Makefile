@@ -7,16 +7,21 @@ CPP=g++
 CC=g++
 
 OBJS= Kitchen.o Courier.o Shelves.o Shelf.o Order.o CircularBuffer.o util/cJSON.o Main.o
-TESTOBJS = Order.o CircularBuffer.o tests/CircularBufferTest.o
+TESTOBJS = Order.o CircularBuffer.o Shelf.o
 
-.PHONY: test clean
+.PHONY: test clean Kitchen
 
-test: CircularBufferTest
+all: Kitchen
+
+test: CircularBufferTest ShelfTest
 
 Kitchen: $(OBJS) 
 	$(CPP) $(CPPFLAGS) -o $@ $(INCLUDE) $^ -lpthread
 
-CircularBufferTest: $(TESTOBJS)
+CiruclarBufferTest : $(TESTOBJS) tests/CircularBufferTest.o
+	$(CPP) $(CPPFLAGS) -o $@ $(INCLUDE) $^ -lgtest -lpthread
+
+ShelfTest : $(TESTOBJS) tests/ShelfTest.o
 	$(CPP) $(CPPFLAGS) -o $@ $(INCLUDE) $^ -lgtest -lpthread
 
 clean:
