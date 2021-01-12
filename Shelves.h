@@ -16,9 +16,6 @@ private:
 	unordered_map<string, shared_ptr<Shelf>> shelvesMap_;
 	shared_ptr<Shelf> overflowShelf_;
 
-	// accelarate orderId to shelf mapping.
-	unordered_map<string, string> idMap_;
-
 	void ProcessOverflow(shared_ptr<Order> order);
 
 public:

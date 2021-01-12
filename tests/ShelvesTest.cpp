@@ -36,6 +36,14 @@ TEST_F(ShelvesTest, AddOrderSingleOverflowTest) {
 	EXPECT_EQ(2, shelves_->GetShelf("HOT")->GetSize());
 }
 
+TEST_F(ShelvesTest, RemoveOrderTest) {
+	shared_ptr<Order> order = make_shared<Order>("000", "first", "HOT", 1.0, 1.0);
+	shelves_->AddOrder(order);
+	shelves_->Remove("000");
+	shelves_->PrintStatus();
+	EXPECT_EQ(0, shelves_->GetShelf("HOT")->GetSize());
+}
+
 TEST_F(ShelvesTest, AddOrderOverflowTest) {
 
 	shared_ptr<Order> order = make_shared<Order>("000", "first", "HOT", 1.0, 1.0);

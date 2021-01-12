@@ -37,4 +37,4 @@ ShelvesTest : $(TESTOBJS) tests/ShelvesTest.o
 
 clean:
 	rm -f *.o util/*.o tests/*.o
-	rm -f Kitchen CircularBufferTest ShelfTest
+	rm -f Kitchen CircularBufferTest ShelfTest ShelvesTest
