@@ -70,6 +70,8 @@ void CircularBuffer::SwapTail(int index) {
 
 void CircularBuffer::PrintStatus(){
 
+	lock_guard<mutex> lock(mutex_);
+
 	if (Empty()) return ;
 
 	cout << "\ttail_:" << tail_ << ", head_:" << head_ << endl;
@@ -83,7 +85,7 @@ void CircularBuffer::PrintStatus(){
 		cout << endl;
 	} else {
 		for (int index = tail_; index < max_size_; index++) {
-			cout << "\t oderId: " << buf_[index]->GetId() << ", shelfLife:" << buf_[index]->GetShelfLife() << endl;
+			cout << "\t orderId: " << buf_[index]->GetId() << ", shelfLife:" << buf_[index]->GetShelfLife() << endl;
 		}
 
 		for (int index = 0; index < head_; index++) {

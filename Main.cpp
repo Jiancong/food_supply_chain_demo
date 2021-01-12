@@ -14,7 +14,7 @@ int main(int argc, char *argv[]){
 	} else {
 		k = atoi(argv[1]);
 		if (k < 0 || k > 100) {
-			cerr << "please input valid ingest count." << endl;
+			cerr << "please input valid ingest count. range is 0~100" << endl;
 			return -1;
 		}
 	}

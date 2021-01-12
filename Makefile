@@ -1,6 +1,6 @@
 INCLUDE= -I. -I./util
 
-DEBUG=true
+DEBUG=
 
 ifdef DEBUG
 CPPFLAGS=-g -DDEBUG -fPIC -pipe -Wno-deprecated -std=c++11
