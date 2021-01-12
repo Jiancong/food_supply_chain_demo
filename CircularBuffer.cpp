@@ -48,9 +48,6 @@ void CircularBuffer::Put(shared_ptr<Order> item)
 {
 	lock_guard<mutex> lock(mutex_);
 
-	//cout << "CircularBuffer::Put, head_: " << head_ << endl;
-	//cout << "max_size_:" << max_size_ << endl;
-
 	buf_[head_] = item;
 
 	if(full_)

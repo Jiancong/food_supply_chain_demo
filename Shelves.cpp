@@ -8,6 +8,18 @@ Shelves::Shelves(){
 	overflowShelf_ = make_shared<Shelf>("OVERFLOW", 2, 15);
 }
 
+Shelves::Shelves(int coldSize, int frozenSize, int hotSize, int overflowSize){
+
+	if (coldSize < 0 || frozenSize < 0 || hotSize < 0 || overflowSize < 0) {
+		Shelves();
+	} else {
+		shelvesMap_.emplace("COLD", make_shared<Shelf>("COLD", 1, coldSize));
+		shelvesMap_.emplace("FROZEN", make_shared<Shelf>("FROZEN", 1, frozenSize));
+		shelvesMap_.emplace("HOT", make_shared<Shelf>("HOT", 1, hotSize));
+		overflowShelf_ = make_shared<Shelf>("OVERFLOW", 2, overflowSize);
+	}
+}
+
 bool Shelves::PrintStatus(){
 
 	cout << "********** Shelves Status Printing ************" << endl;
@@ -18,6 +30,15 @@ bool Shelves::PrintStatus(){
 
 	overflowShelf_->PrintStatus();
 
+}
+
+shared_ptr<Shelf> Shelves::GetShelf(string temp){
+	auto it = shelvesMap_.find(temp);
+	if (it != shelvesMap_.end()){
+		return it->second;
+	} else {
+		return overflowShelf_;
+	}
 }
 
 void Shelves::Maintain(){
@@ -55,6 +76,9 @@ void Shelves::ProcessOverflow(shared_ptr<Order> order){
 			return;
 		}
 	}
+
+	cout << "*********** Shelves order discarded ***************" << endl;
+	cout << " Order [" << removed->GetId() << "] is discarded." << endl;
 	return ;
 }
 
@@ -120,7 +144,6 @@ shared_ptr<Order> Shelves::Remove(string orderId){
 	cout << "*************  Shelves::Remove is calling *************" << endl;
 
 	PrintStatus();
-
 
 	auto it = idMap_.find(orderId);
 	string temp = "";

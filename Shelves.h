@@ -29,8 +29,10 @@ public:
 	}
 
 	Shelves();
+	Shelves(int coldSize, int frozenSize, int hotSize, int overflowSize);
 	bool AddOrder(shared_ptr<Order> order);
 	shared_ptr<Order> Remove(string orderId);
 	void Maintain();
+	shared_ptr<Shelf> GetShelf(string temp);
 };
 #endif
