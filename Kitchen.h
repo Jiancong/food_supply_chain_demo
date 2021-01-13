@@ -4,17 +4,18 @@
 #include "Shelves.h"
 #include "Order.h"
 #include <memory>
+#include "util/ThreadPool.h"
 
 using namespace std;
 
 class Courier;
 
-const int kCourierNumber = 2000;
 
 class Kitchen {
 public:
 	Kitchen();
-	~Kitchen();
+	Kitchen(int courierNum);
+	virtual ~Kitchen();
 	bool Init(string filepath);
 	bool ProceedOrder(shared_ptr<Order> order, Courier* courier, int index);
 	bool Run(int ingestCount);
@@ -24,11 +25,13 @@ public:
 private:
 	int orderSize_;
 	string content_;
+
 	// current the cook operation is empty.
 	bool Cook();
 	bool AddOrder(shared_ptr<Order> order);
-	pthread_attr_t attr_;
-	pthread_t courierThreads_[kCourierNumber];
+
+	ThreadPool* threadPool_;
+	vector< future<string> > results_;
 
 };
 

@@ -9,7 +9,7 @@ int main(int argc, char *argv[]){
 	int k = 2;
 	if (argc != 2) {
 		cerr << "Usage:" << endl;
-		cerr << "\t./Kitchen <ingest count per second>" << endl;
+		cerr << "\t./Kitchen <ingest count per second> " << endl;
 		return -1;
 	} else {
 		k = atoi(argv[1]);
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]){
 	cout << "************* Kitchen demo ************" << endl;
 	cout << "setup k:" << k << endl;
 
-	Kitchen* kitchen = new Kitchen();
+	Kitchen* kitchen = new Kitchen(2);
 
 	kitchen->Init("./orders.json");
 

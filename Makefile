@@ -14,13 +14,13 @@ CPP=g++
 CC=g++
 
 OBJS= Kitchen.o Courier.o Shelves.o Shelf.o Order.o CircularBuffer.o util/cJSON.o Main.o
-TESTOBJS = Order.o CircularBuffer.o Shelf.o Shelves.o
+TESTOBJS = Order.o CircularBuffer.o Shelf.o Shelves.o 
 
 .PHONY: test clean Kitchen
 
 all: Kitchen
 
-test: CircularBufferTest ShelfTest ShelvesTest
+test: CircularBufferTest ShelfTest ShelvesTest 
 
 Kitchen: $(OBJS) 
 	$(CPP) $(CPPFLAGS) -o $@ $(INCLUDE) $^ -lpthread
