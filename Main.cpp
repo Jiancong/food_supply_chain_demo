@@ -22,7 +22,7 @@ int main(int argc, char *argv[]){
 	cout << "************* Kitchen demo ************" << endl;
 	cout << "setup k:" << k << endl;
 
-	Kitchen* kitchen = new Kitchen(20);
+	Kitchen* kitchen = new Kitchen(200);
 
 	kitchen->Init("./orders.json");
 
