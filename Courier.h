@@ -38,8 +38,8 @@ public:
 
 	bool DeliverOrder(shared_ptr<Order> order); 
 
-	void* PickUpOrder(void);
-	static void* thread_helper(void* arg){
+	string PickUpOrder(void);
+	static string thread_helper(void* arg){
 		//cout << "thread_helper is running" << endl;
         Courier *c = (Courier*)arg;
 		auto ret = ((Courier*)arg)->PickUpOrder();

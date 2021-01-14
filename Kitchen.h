@@ -10,7 +10,6 @@ using namespace std;
 
 class Courier;
 
-
 class Kitchen {
 public:
 	Kitchen();
@@ -25,6 +24,7 @@ public:
 private:
 	int orderSize_;
 	string content_;
+	int courierNum_;
 
 	// current the cook operation is empty.
 	bool Cook();

@@ -102,6 +102,7 @@ bool Kitchen::Run(int ingestCount) {
 				//shared_ptr<Courier> courier = make_shared<Courier>(this);
 				Courier *courier = new Courier(this);
 				ProceedOrder(order, courier, i);
+
 			}
 			
         } else {
@@ -111,12 +112,10 @@ bool Kitchen::Run(int ingestCount) {
 		}
         cJSON_Delete(root);
 
-		/*
 		for(auto && result: results_)
 			cout << result.get() << endl;
 
 		cout << endl;
-		*/
 
 		return true;
     }
@@ -164,3 +163,4 @@ shared_ptr<Order> Kitchen::PickUpOrder(string orderid){
 		return shelves_->Remove(orderid);
 	}
 }
+#include "Kitchen.h"

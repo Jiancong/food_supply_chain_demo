@@ -37,7 +37,7 @@ Courier::Courier(Kitchen_* kit){
 	kitchen_ = kit;
 }*/
 
-void* Courier::PickUpOrder(void){
+string Courier::PickUpOrder(void){
 
 	random_device rd; // obtain a random number from hardware
 	mt19937 gen(rd()); // seed the generator
@@ -48,10 +48,11 @@ void* Courier::PickUpOrder(void){
 	std::this_thread::sleep_for(std::chrono::seconds(seconds));
 
 	kitchen_->PickUpOrder(orderId_);
+	cout << "************************* Courier do work *****************************" <<endl;
+	cout  << "Courier:[" + to_string(id_) + "], PickUp Order :[" + orderId_ + "] has been delivered and removed." << endl;
 
-	cout << "Courier:[" << id_ << "], PickUp Order :[" << orderId_ << "] has been delivered and removed." << endl;
+	return "Courier:[" + to_string(id_) + "], PickUp Order :[" + orderId_ + "] is completed and exit.";
 
-	pthread_exit(NULL);
 }
 
 bool Courier::DeliverOrder(shared_ptr<Order> order) {

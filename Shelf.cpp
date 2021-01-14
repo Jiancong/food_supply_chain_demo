@@ -36,7 +36,7 @@ bool Shelf::PrintStatus() {
 bool Shelf::Add(shared_ptr<Order> order) {
 
 	if (buffers_->Full()) {
-		cout << "the buffer is full, returned." << endl;
+		cout << "The shelf [" + GetTemp()+  "]'s buffer is full, returned." << endl;
 		return false;
 	}
 
